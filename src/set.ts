@@ -2,7 +2,7 @@ import { TweenMax } from 'gsap'
 
 const set = (
   element: Element | Element[] | HTMLCollection,
-  values: object
+  values: any
 ): void => {
   requestAnimationFrame(() => {
     TweenMax.set(element, values)
