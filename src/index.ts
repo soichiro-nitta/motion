@@ -1,6 +1,7 @@
 import set from './set'
+import to from './to'
 import x from './x'
-import y from './y'
+import y from './y
 import width from './width'
 import height from './height'
 import color from './color'
@@ -17,6 +18,7 @@ import backgroundColor from './backgroundColor'
 
 export const motion = {
   set,
+  to,
   x,
   y,
   width,
