@@ -5,12 +5,8 @@ const to = (
   duration: number,
   values: any
 ): any => {
-  let animation
   const newValues = Object.assign(values, { ease: Linear.easeNone })
-  requestAnimationFrame(() => {
-    animation = TweenMax.to(element, duration, newValues)
-  })
-  return animation
+  return TweenMax.to(element, duration, newValues)
 }
 
 export default to
