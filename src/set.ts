@@ -4,9 +4,7 @@ const set = (
   element: Element | Element[] | HTMLCollection,
   values: any
 ): void => {
-  requestAnimationFrame(() => {
-    TweenMax.set(element, values)
-  })
+  TweenMax.set(element, values)
 }
 
 export default set
