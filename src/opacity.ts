@@ -1,7 +1,7 @@
 import { TweenMax, Expo } from 'gsap'
 
 const opacity = (
-  element: Element | Element[],
+  element: Element | Element[] | HTMLCollection,
   value: number,
   duration: number,
   easing: 'In' | 'Out' | 'InOut'
@@ -21,7 +21,7 @@ const opacity = (
   requestAnimationFrame(() => {
     TweenMax.to(element, duration, {
       opacity: value,
-      ease
+      ease,
     })
   })
 }

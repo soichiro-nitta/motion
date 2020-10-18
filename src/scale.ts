@@ -1,7 +1,7 @@
 import { TweenMax, Expo } from 'gsap'
 
 const scale = (
-  element: Element | Element[],
+  element: Element | Element[] | HTMLCollection,
   value: number,
   duration: number,
   easing: 'In' | 'Out' | 'InOut'
@@ -21,7 +21,7 @@ const scale = (
   requestAnimationFrame(() => {
     TweenMax.to(element, duration, {
       scale: value,
-      ease
+      ease,
     })
   })
 }
