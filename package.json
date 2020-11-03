@@ -12,12 +12,10 @@
     "gsap": "^3.5.1"
   },
   "devDependencies": {
+    "@soichiro_nitta/eslint-config": "^0.0.9",
+    "@soichiro_nitta/prettier-config": "^0.0.8",
     "@types/gsap": "^1.20.2",
-    "@typescript-eslint/eslint-plugin": "^4.2.0",
-    "@typescript-eslint/parser": "^4.2.0",
     "eslint": "^7.9.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-prettier": "^3.1.4",
     "prettier": "^2.1.2",
     "typescript": "^4.0.3"
   }
