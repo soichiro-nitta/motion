@@ -1,6 +1,6 @@
 {
   "name": "@soichiro_nitta/motion",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "",
   "main": "out/index.js",
   "author": "Soichiro Nitta <soic1226@gmail.com>",
