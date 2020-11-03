@@ -1,0 +1,6 @@
+/.github
+/src
+.editorconfig
+.eslintrc.js
+.prettierrc.js
+tsconfig.json
