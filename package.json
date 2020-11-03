@@ -5,8 +5,11 @@
   "main": "out/index.js",
   "author": "Soichiro Nitta <soic1226@gmail.com>",
   "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
-    "build": "tsc"
+    "prepare": "tsc"
   },
   "dependencies": {
     "gsap": "^3.5.1"
