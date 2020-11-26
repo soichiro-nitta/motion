@@ -1,12 +1,24 @@
-import { TweenMax, Linear } from 'gsap'
+import { ElementTypes, ValuesTypes } from './types'
+import { bezier } from './lib/bezier'
+import { genStyleFromValues } from './lib/genStyleFromValues'
+import { assign } from './lib/assign'
 
 const to = (
-  element: Element | Element[] | HTMLCollection,
+  element: ElementTypes,
   duration: number,
-  values: any
-): any => {
-  const newValues = Object.assign(values, { ease: Linear.easeNone })
-  return TweenMax.to(element, duration, newValues)
+  easing: 'in' | 'out' | 'inout',
+  values: ValuesTypes
+): void => {
+  const style = genStyleFromValues(values)
+
+  assign(style, {
+    transitionDuration: `${duration}s`,
+    transitionTimingFunction: bezier.expo[easing],
+  })
+
+  requestAnimationFrame(() => {
+    assign(element.style, style)
+  })
 }
 
 export default to
