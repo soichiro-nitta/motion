@@ -1,12 +1,13 @@
 import { CssTypes, ValuesTypes } from '~/types'
 import { assign } from './assign'
+import { keys } from './keys'
 import { specific } from './specific'
 
 export const genStyleFromValues = (values: ValuesTypes): CssTypes => {
   const style: CssTypes = {}
   let transform = ''
 
-  Object.keys(values).forEach((key) => {
+  keys(values).forEach((key) => {
     const prop = key as keyof ValuesTypes
     const include = specific.includes(prop as string)
     if (include) {
