@@ -5,6 +5,11 @@
   "main": "out/index.js",
   "author": "Soichiro Nitta <soic1226@gmail.com>",
   "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soichiro-nitta/motion.git"
+  },
+  "homepage": "https://github.com/soichiro-nitta/motion",
   "publishConfig": {
     "access": "public"
   },
