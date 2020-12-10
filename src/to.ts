@@ -1,3 +1,4 @@
+import { genValuesFromTransform } from './lib/genValuesFromTransform'
 import { ElementTypes, ValuesTypes } from './types'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
@@ -9,7 +10,8 @@ const to = (
   easing: 'in' | 'out' | 'inout',
   values: ValuesTypes
 ): void => {
-  const style = genStyleFromValues(values)
+  const originalValues = genValuesFromTransform(element.style.transform)
+  const style = genStyleFromValues(assign(originalValues, values))
 
   assign(style, {
     transitionDuration: `${duration}s`,

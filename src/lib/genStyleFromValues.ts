@@ -11,16 +11,12 @@ export const genStyleFromValues = (values: ValuesTypes): CssTypes => {
     const prop = key as keyof ValuesTypes
     const include = specific.includes(prop as string)
     if (include) {
-      for (const i of specific) {
-        if (i === prop) {
-          transform += `${prop}(${values[prop]}) `
-        }
-      }
-      transform = transform.slice(0, -1)
+      transform += `${prop}(${values[prop]}) `
     } else {
       assign(style, { [prop]: values[prop] })
     }
   })
+  transform = transform.slice(0, -1)
 
   return assign(style, { transform })
 }

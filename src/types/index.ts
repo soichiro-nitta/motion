@@ -1,6 +1,10 @@
 import { Properties } from 'csstype'
 
-export type SpecificTypes = {
+export type CssTypes = Properties
+
+export type ElementTypes = HTMLElement
+
+export type ValuesTypes = CssTypes & {
   rotate?: string
   rotateX?: string
   rotateY?: string
@@ -12,9 +16,3 @@ export type SpecificTypes = {
   translateY?: string
   translateZ?: string
 }
-
-export type CssTypes = Properties
-
-export type ElementTypes = HTMLElement
-
-export type ValuesTypes = CssTypes & SpecificTypes

@@ -2,16 +2,18 @@ import { ElementTypes, ValuesTypes } from './types'
 import { genStyleFromValues } from './lib/genStyleFromValues'
 import { assign } from './lib/assign'
 import { keys } from './lib/keys'
+import { genValuesFromTransform } from './lib/genValuesFromTransform'
 
 const repeat = (
   element: ElementTypes,
   duration: number,
   values: ValuesTypes
 ): { pause: () => void; play: () => void } => {
+  const originalValues = genValuesFromTransform(element.style.transform)
   const state = {
     stop: false,
     before: {},
-    after: assign(genStyleFromValues(values), {
+    after: assign(genStyleFromValues(assign(originalValues, values)), {
       transitionDuration: `${duration}s`,
       transitionTimingFunction: 'linear',
     }),
