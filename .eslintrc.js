@@ -1,3 +1,3 @@
 module.exports = {
-  extends: '@soichiro_nitta/eslint-config/presets/typescript-prettier',
+  extends: '@soichiro_nitta/eslint-config/presets/react-typescript-prettier',
 }
