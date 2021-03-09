@@ -1,15 +1,18 @@
-import to from './to'
-import set from './set'
-import repeat from './repeat'
-import delay from './delay'
 import addWillChange from './addWillChange'
+import delay from './delay'
 import removeWillChange from './removeWillChange'
+import repeat from './repeat'
+import set from './set'
+import to from './to'
+import _useMotion from './useMotion'
 
 export const motion = {
-  to,
-  set,
-  repeat,
-  delay,
   addWillChange,
+  delay,
   removeWillChange,
+  repeat,
+  set,
+  to,
 }
+
+export const useMotion = _useMotion
