@@ -2,7 +2,7 @@ import { Properties } from 'csstype'
 
 export type CssTypes = Properties
 
-export type ElementTypes = HTMLElement
+export type ElementTypes = HTMLElement | Element
 
 export type ValuesTypes = CssTypes & {
   rotate?: string

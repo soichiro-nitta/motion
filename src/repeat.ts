@@ -1,33 +1,34 @@
-import { ElementTypes, ValuesTypes } from './types'
-import { genStyleFromValues } from './lib/genStyleFromValues'
 import { assign } from './lib/assign'
-import { keys } from './lib/keys'
+import { genStyleFromValues } from './lib/genStyleFromValues'
 import { genValuesFromTransform } from './lib/genValuesFromTransform'
+import { keys } from './lib/keys'
+import { ElementTypes, ValuesTypes } from './types'
 
 const repeat = (
   element: ElementTypes,
   duration: number,
   values: ValuesTypes
 ): { pause: () => void; play: () => void } => {
-  const originalValues = genValuesFromTransform(element.style.transform)
+  const e = element as HTMLElement
+  const originalValues = genValuesFromTransform(e.style.transform)
   const state = {
-    stop: false,
-    before: {},
     after: assign(genStyleFromValues(assign(originalValues, values)), {
       transitionDuration: `${duration}s`,
       transitionTimingFunction: 'linear',
     }),
+    before: {},
+    stop: false,
   }
   keys(state.after).forEach((key) => {
     const prop = key as keyof CSSStyleDeclaration
-    assign(state.before, { [prop]: element.style[prop] })
+    assign(state.before, { [prop]: e.style[prop] })
   })
 
   const anim = () => {
     if (!state.stop) {
-      assign(element.style, state.before)
+      assign(e.style, state.before)
       requestAnimationFrame(() => {
-        assign(element.style, state.after)
+        assign(e.style, state.after)
       })
       setTimeout(() => {
         requestAnimationFrame(() => {

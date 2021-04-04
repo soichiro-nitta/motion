@@ -4,10 +4,11 @@ import { genValuesFromTransform } from './lib/genValuesFromTransform'
 import { ElementTypes, ValuesTypes } from './types'
 
 const set = (element: ElementTypes, values: ValuesTypes): void => {
-  const originalValues = genValuesFromTransform(element.style.transform)
+  const e = element as HTMLElement
+  const originalValues = genValuesFromTransform(e.style.transform)
   const style = genStyleFromValues(assign(originalValues, values))
 
-  assign(element.style, style)
+  assign(e.style, style)
 }
 
 export default set

@@ -1,8 +1,8 @@
-import { genValuesFromTransform } from './lib/genValuesFromTransform'
-import { ElementTypes, ValuesTypes } from './types'
+import { assign } from './lib/assign'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
-import { assign } from './lib/assign'
+import { genValuesFromTransform } from './lib/genValuesFromTransform'
+import { ElementTypes, ValuesTypes } from './types'
 
 const to = (
   element: ElementTypes,
@@ -10,7 +10,8 @@ const to = (
   easing: 'in' | 'out' | 'inout',
   values: ValuesTypes
 ): void => {
-  const originalValues = genValuesFromTransform(element.style.transform)
+  const e = element as HTMLElement
+  const originalValues = genValuesFromTransform(e.style.transform)
   const style = genStyleFromValues(assign(originalValues, values))
 
   assign(style, {
@@ -19,7 +20,7 @@ const to = (
   })
 
   requestAnimationFrame(() => {
-    assign(element.style, style)
+    assign(e.style, style)
   })
 }
 
