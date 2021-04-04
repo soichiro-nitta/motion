@@ -1,15 +1,16 @@
+import delay from './delay'
 import { assign } from './lib/assign'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
 import { genValuesFromTransform } from './lib/genValuesFromTransform'
 import { ElementTypes, ValuesTypes } from './types'
 
-const to = (
+const to = async (
   element: ElementTypes,
   duration: number,
   easing: 'in' | 'out' | 'inout',
   values: ValuesTypes
-): void => {
+) => {
   const e = element as HTMLElement
   const originalValues = genValuesFromTransform(e.style.transform)
   const style = genStyleFromValues(assign(originalValues, values))
@@ -19,9 +20,10 @@ const to = (
     transitionTimingFunction: bezier.expo[easing],
   })
 
-  requestAnimationFrame(() => {
+  requestAnimationFrame(async () => {
     assign(e.style, style)
   })
+  await delay(duration)
 }
 
 export default to
