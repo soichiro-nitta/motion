@@ -20,6 +20,8 @@ const to = async (
     transitionTimingFunction: bezier.expo[easing],
   })
 
+  console.log({ style })
+
   requestAnimationFrame(async () => {
     assign(e.style, style)
   })
