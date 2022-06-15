@@ -39,10 +39,8 @@ const to = async (
     if (transformProperties.includes(p)) includedTransform = true
     window.getComputedStyle(element).getPropertyValue(p)
   })
-  if (includedTransform) {
-    console.log('transformのパージ')
+  if (includedTransform)
     window.getComputedStyle(element).getPropertyValue('transform')
-  }
 
   requestAnimationFrame(async () => {
     assign(e.style, style)
