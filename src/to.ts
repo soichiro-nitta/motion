@@ -20,6 +20,11 @@ const to = async (
     transitionTimingFunction: bezier.expo[easing],
   })
 
+  // ブラウザ側のキャッシュをパージする
+  Object.keys(style).forEach((p) => {
+    window.getComputedStyle(element).getPropertyValue(p)
+  })
+
   requestAnimationFrame(async () => {
     assign(e.style, style)
   })
