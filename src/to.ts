@@ -34,40 +34,20 @@ const to = async (
   })
 
   // ブラウザ側のキャッシュをパージする
-  const included = {
-    bottom: false,
-    left: false,
-    opacity: false,
-    right: false,
-    top: false,
-    transform: false,
-  }
+  let includedTransform = false
   Object.keys(values).forEach((p) => {
-    console.log({ p })
-    if (transformProperties.includes(p)) included.transform = true
-    if (p === 'opacity') included.opacity = true
-    if (p === 'top') included.top = true
-    if (p === 'right') included.right = true
-    if (p === 'bottom') included.bottom = true
-    if (p === 'left') included.left = true
+    if (transformProperties.includes(p)) includedTransform = true
     window.getComputedStyle(element).getPropertyValue(p)
   })
-  if (included.transform)
+  if (includedTransform) {
+    console.log('transformのパージ')
     window.getComputedStyle(element).getPropertyValue('transform')
+  }
 
-  let willChange = ''
-  Object.keys(included).forEach((p, i) => {
-    if (included[p as keyof typeof included])
-      willChange += `${i === 0 ? '' : ', '}${p}`
-  })
-  console.log({ willChange })
-
-  e.style.willChange = willChange
   requestAnimationFrame(async () => {
     assign(e.style, style)
   })
   await delay(duration)
-  e.style.willChange = ''
 }
 
 export default to
