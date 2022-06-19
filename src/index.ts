@@ -1,5 +1,6 @@
 import addWillChange from './addWillChange'
 import delay from './delay'
+import get from './get'
 import removeWillChange from './removeWillChange'
 import repeat from './repeat'
 import set from './set'
@@ -9,6 +10,7 @@ import _useMotion from './useMotion'
 export const motion = {
   addWillChange,
   delay,
+  get,
   removeWillChange,
   repeat,
   set,
