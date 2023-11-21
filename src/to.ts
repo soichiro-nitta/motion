@@ -21,7 +21,7 @@ const transformProperties = [
 const to = async (
   element: ElementTypes,
   duration: number,
-  easing: 'in' | 'out' | 'inout',
+  easing: 'in' | 'out' | 'inout' | 'bounce',
   values: ValuesTypes
 ) => {
   const e = element as HTMLElement
@@ -30,7 +30,10 @@ const to = async (
 
   assign(style, {
     transitionDuration: `${duration}s`,
-    transitionTimingFunction: bezier.expo[easing],
+    transitionTimingFunction:
+      easing === 'bounce'
+        ? ' cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+        : bezier.expo[easing],
   })
 
   // ブラウザ側のキャッシュをパージする
