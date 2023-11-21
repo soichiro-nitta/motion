@@ -32,7 +32,7 @@ const to = async (
     transitionDuration: `${duration}s`,
     transitionTimingFunction:
       easing === 'bounce'
-        ? ' cubic-bezier(0.68, -0.55, 0.265, 1.55)'
+        ? 'cubic-bezier(0.4, 2, 0.1, 0.8)'
         : bezier.expo[easing],
   })
 
