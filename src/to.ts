@@ -1,4 +1,5 @@
 import delay from './delay'
+import id from './id'
 import { assign } from './lib/assign'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
@@ -19,12 +20,15 @@ const transformProperties = [
 ]
 
 const to = async (
-  element: ElementTypes,
+  element: string | ElementTypes,
   duration: number,
   easing: 'in' | 'out' | 'inout' | 'bounce',
   values: ValuesTypes
 ) => {
-  const e = element as HTMLElement
+  const e =
+    typeof element === 'string'
+      ? id([element]).ID[element].E()
+      : (element as HTMLElement)
   const originalValues = genValuesFromTransform(e.style.transform)
   const style = genStyleFromValues(assign(originalValues, values))
 
@@ -40,10 +44,10 @@ const to = async (
   let includedTransform = false
   Object.keys(values).forEach((p) => {
     if (transformProperties.includes(p)) includedTransform = true
-    window.getComputedStyle(element).getPropertyValue(p)
+    window.getComputedStyle(e).getPropertyValue(p)
   })
   if (includedTransform)
-    window.getComputedStyle(element).getPropertyValue('transform')
+    window.getComputedStyle(e).getPropertyValue('transform')
 
   requestAnimationFrame(async () => {
     assign(e.style, style)
