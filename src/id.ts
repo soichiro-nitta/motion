@@ -16,11 +16,13 @@ const createIdObject = (name: string) => {
 }
 
 const id = (names: string[]) => {
+  if (names.length !== new Set(names).size) {
+    throw new Error('Duplicate names are not allowed')
+  }
   const ID = names.reduce((acc, name) => {
     acc[name] = createIdObject(name)
     return acc
   }, {} as Record<string, ReturnType<typeof createIdObject>>)
   return { ID }
 }
-
 export default id
