@@ -1,8 +1,6 @@
-import addWillChange from './addWillChange'
 import _createId from './createId'
 import delay from './delay'
 import get from './get'
-import removeWillChange from './removeWillChange'
 import repeat from './repeat'
 import set from './set'
 import to from './to'
@@ -10,10 +8,8 @@ import { ElementTypes } from './types'
 import _useMotion from './useMotion'
 
 export const motion = {
-  addWillChange,
   delay,
   get,
-  removeWillChange,
   repeat,
   set,
   to,
