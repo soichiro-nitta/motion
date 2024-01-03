@@ -22,7 +22,7 @@ const createId = (names: string[]) => {
   const ID = names.reduce((acc, name) => {
     acc[name] = idObject(name)
     return acc
-  }, {} as Record<string, ReturnType<typeof createIdObject>>)
+  }, {} as Record<string, ReturnType<typeof idObject>>)
   return { ID }
 }
 export default createId
