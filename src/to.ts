@@ -1,5 +1,5 @@
+import id from './createId'
 import delay from './delay'
-import id from './id'
 import { assign } from './lib/assign'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
