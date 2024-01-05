@@ -1,7 +1,5 @@
 import { ValuesTypes } from '~/types'
 
-import { assign } from './assign'
-
 export const genValuesFromTransform = (transform: string): ValuesTypes => {
   const values = {} as ValuesTypes
 
@@ -11,7 +9,7 @@ export const genValuesFromTransform = (transform: string): ValuesTypes => {
     // 括弧の中身の文字列
     const val = value.match(/\(([^)]+)\)/)?.[1]
 
-    if (key && val) assign(values, { [key]: val })
+    if (key && val) Object.assign(values, { [key]: val })
   })
 
   return values

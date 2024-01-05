@@ -1,6 +1,5 @@
 import { CssTypes, ValuesTypes } from '~/types'
 
-import { assign } from './assign'
 import { keys } from './keys'
 import { specific } from './specific'
 
@@ -14,10 +13,10 @@ export const genStyleFromValues = (values: ValuesTypes): CssTypes => {
     if (include) {
       transform += `${prop}(${values[prop]}) `
     } else {
-      assign(style, { [prop]: values[prop] })
+      Object.assign(style, { [prop]: values[prop] })
     }
   })
   transform = transform.slice(0, -1)
 
-  return assign(style, { transform })
+  return Object.assign(style, { transform })
 }

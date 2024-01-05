@@ -1,5 +1,4 @@
 import _byIds from './byIds'
-import { assign } from './lib/assign'
 import { bezier } from './lib/bezier'
 import { genStyleFromValues } from './lib/genStyleFromValues'
 import { genValuesFromTransform } from './lib/genValuesFromTransform'
@@ -27,23 +26,26 @@ const repeat = (
   const e = element as HTMLElement
   const originalValues = genValuesFromTransform(e.style.transform)
   const state = {
-    after: assign(genStyleFromValues(assign(originalValues, values)), {
-      transitionDuration: `${duration}s`,
-      transitionTimingFunction: 'linear',
-    }),
+    after: Object.assign(
+      genStyleFromValues(Object.assign(originalValues, values)),
+      {
+        transitionDuration: `${duration}s`,
+        transitionTimingFunction: 'linear',
+      }
+    ),
     before: {},
     stop: false,
   }
   keys(state.after).forEach((key) => {
     const prop = key as keyof CSSStyleDeclaration
-    assign(state.before, { [prop]: e.style[prop] })
+    Object.assign(state.before, { [prop]: e.style[prop] })
   })
 
   const anim = () => {
     if (!state.stop) {
-      assign(e.style, state.before)
+      Object.assign(e.style, state.before)
       requestAnimationFrame(() => {
-        assign(e.style, state.after)
+        Object.assign(e.style, state.after)
       })
       setTimeout(() => {
         requestAnimationFrame(() => {
@@ -90,9 +92,9 @@ const to = async (
   //     : (element as HTMLElement)
   const e = element as HTMLElement
   const originalValues = genValuesFromTransform(e.style.transform)
-  const style = genStyleFromValues(assign(originalValues, values))
+  const style = genStyleFromValues(Object.assign(originalValues, values))
 
-  assign(style, {
+  Object.assign(style, {
     transitionDuration: `${duration}s`,
     transitionTimingFunction:
       easing === 'bounce'
@@ -110,7 +112,7 @@ const to = async (
     window.getComputedStyle(e).getPropertyValue('transform')
 
   requestAnimationFrame(async () => {
-    assign(e.style, style)
+    Object.assign(e.style, style)
   })
   await delay(duration)
 }
