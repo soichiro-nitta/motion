@@ -1,4 +1,4 @@
-import { ValuesTypes } from '~/types'
+import { ValuesTypes } from '~/const'
 
 export const genValuesFromTransform = (transform: string): ValuesTypes => {
   const values = {} as ValuesTypes
