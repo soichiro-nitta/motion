@@ -1,4 +1,4 @@
-import { CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from '~/const'
+import { CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from './const'
 
 export const genStyleFromValues = (values: ValuesTypes): CssTypes => {
   const style: CssTypes = {}
