@@ -123,12 +123,25 @@ export const byIds = <T extends string>(names: T[]) => {
       N: name,
     }
   }
-  const ID = names.reduce((acc, name) => {
-    acc[name] = idObj<T>(name)
-    return acc
-  }, {} as Record<T, ReturnType<typeof idObj>>)
   return {
-    ID,
+    ID: names.reduce((acc, name) => {
+      let cachedElement: HTMLElement | null = null
+      acc[name] = {
+        E: () => {
+          if (!cachedElement) {
+            const el = document.getElementById(name as string)
+            if (el) {
+              cachedElement = el
+            } else {
+              throw new Error(`Element not found: ${name}`)
+            }
+          }
+          return cachedElement
+        },
+        N: name,
+      }
+      return acc
+    }, {} as Record<T, ReturnType<typeof idObj>>),
     motion: motion as Omit<typeof motion, 'to'> & {
       to: (
         ...args: [
