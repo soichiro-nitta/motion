@@ -8,7 +8,7 @@ export const createMotion = <T extends string>(names: T[]) => {
   if (names.length !== new Set(names).size) {
     throw new Error('Duplicate names are not allowed')
   }
-  const idObj = <T>(name: T) => {
+  const idObj = <T extends string>(name: T) => {
     let cachedElement: HTMLElement | null = null
     return {
       E: () => {
