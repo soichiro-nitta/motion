@@ -24,8 +24,6 @@ export const TRANSFORM_PROPERTIES = [
 
 export type CssTypes = Properties
 
-export type ElementTypes = HTMLElement | Element
-
 export type ValuesTypes = CssTypes & {
   rotate?: string
   rotateX?: string
