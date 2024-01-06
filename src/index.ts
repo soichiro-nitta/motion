@@ -3,7 +3,7 @@ import { genStyleFromValues } from './genStyleFromValues'
 import { genValuesFromTransform } from './genValuesFromTransform'
 
 export const createMotion = <T extends string>(names: T[]) => {
-  type TargetTypes = HTMLElement | T
+  type TargetTypes = (HTMLElement | Element) | T
 
   if (names.length !== new Set(names).size) {
     throw new Error('Duplicate names are not allowed')
@@ -45,7 +45,7 @@ export const createMotion = <T extends string>(names: T[]) => {
   }, {} as Record<T, ReturnType<typeof idObj>>)
 
   const getElement = (target: TargetTypes) => {
-    return typeof target == 'string' ? ID[target].E() : target
+    return typeof target == 'string' ? ID[target].E() : (target as HTMLElement)
   }
   const motion = {
     delay: (duration: number): Promise<void> => {
