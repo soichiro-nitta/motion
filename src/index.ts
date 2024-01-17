@@ -44,10 +44,6 @@ export const createMotion = <T extends string>(names: T[]) => {
     return acc
   }, {} as Record<T, ReturnType<typeof idObj>>)
 
-  window.onpopstate = () => {
-    console.log('popstate')
-  }
-
   const getElement = (target: TargetTypes) => {
     return typeof target == 'string' ? ID[target].E() : (target as HTMLElement)
   }
