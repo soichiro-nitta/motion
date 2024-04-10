@@ -5,7 +5,7 @@ export const BEZIER = {
   expo: {
     in: 'cubic-bezier(0.95, 0.05, 0.795, 0.035)',
     inout: 'cubic-bezier(1, 0, 0, 1)',
-    out: 'cubic-bezier(0.19, 1, 0.22, 1)',
+    out: 'cubic-bezier(0.32, 0.72, 0, 1)',
   },
 }
 
