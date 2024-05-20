@@ -112,7 +112,7 @@ export const createMotion = <T extends string>(names: T[]) => {
     to: async (
       target: TargetTypes,
       duration: number,
-      easing: 'in' | 'out' | 'inout' | 'bounce',
+      easing: 'in' | 'out' | 'inout' | 'bounce' | 'linear',
       values: ValuesTypes
     ) => {
       const el = getElement(target)
@@ -121,7 +121,11 @@ export const createMotion = <T extends string>(names: T[]) => {
       Object.assign(style, {
         transitionDuration: `${duration}s`,
         transitionTimingFunction:
-          easing === 'bounce' ? BEZIER.bounce : BEZIER.expo[easing],
+          easing === 'bounce'
+            ? BEZIER.bounce
+            : easing === 'linear'
+            ? 'linear'
+            : BEZIER.expo[easing],
       })
       // ブラウザ側のキャッシュをパージする
       let includedTransform = false
