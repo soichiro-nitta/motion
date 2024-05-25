@@ -1,7 +1,7 @@
 import { Properties } from 'csstype'
 
 export const BEZIER = {
-  bounce: 'cubic-bezier(0.4, 2, 0.1, 0.8)',
+  bounce: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
   expo: {
     in: 'cubic-bezier(0.95, 0.05, 0.795, 0.035)',
     inout: 'cubic-bezier(1, 0, 0, 1)',
