@@ -1,6 +1,6 @@
 {
   "name": "@soichiro_nitta/motion",
-  "version": "4.1.0",
+  "version": "4.1.1",
   "description": "",
   "main": "out/index.js",
   "types": "out/index.d.ts",
