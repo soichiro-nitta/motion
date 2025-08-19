@@ -29,6 +29,9 @@ export const createMotion = <T extends string>(names: T[]) => {
     let cachedElement: HTMLElement | null = null
     acc[name] = {
       E: () => {
+        if (typeof document === 'undefined') {
+          throw new Error('E() はクライアント専用です')
+        }
         if (!cachedElement) {
           const el = document.getElementById(name as string)
           if (el) {
