@@ -32,6 +32,20 @@ npm version patch
 git push origin master --follow-tags
 ```
 
+## ビルドについて
+
+- リリースは GitHub Actions 上で実行され、publish 前に `pnpm install --frozen-lockfile` と `pnpm exec tsc` を実行してビルドします（`Build` ステップ）。そのため、ローカルでのビルドは必須ではありません。
+- タグを切る前にローカルで型・ビルドを検証したい場合は、以下を実行してください。
+
+```bash
+pnpm install
+pnpm exec tsc
+# または（package.json の prepare を利用）
+pnpm run prepare
+```
+
+- CI の Node バージョンは 20 です（`actions/setup-node@v4` で指定）。
+
 ## CI（GitHub Actions）
 
 - タグ `v[0-9]+.[0-9]+.[0-9]+` の push をトリガに、`pnpm publish --access public` を実行
