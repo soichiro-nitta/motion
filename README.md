@@ -75,6 +75,7 @@ await motion.to(ID.Box, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
   - 指定秒数で目的のスタイルにトランジションします。
   - `easing`: `in | out | inout | bounce | linear`
+  - 変形は個別キーで指定します（例: `translateX`, `rotate`, `scale`）。複合 `transform` は渡さないでください。
 
 - `motion.repeat(target, duration, values)`
 
@@ -89,4 +90,10 @@ await motion.to(ID.Box, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
 ## 注意（Client-only）
 
-本モジュールはクライアント専用です。RSC から参照された場合は `react-server` 条件エクスポートによりスタブが返り、エラーになります。アプリ側モジュールに `'use client'` を付与してください。
+本モジュールはクライアント専用です。RSC から参照された場合は `react-server` 条件エクスポートによりスタブが返り、エラーになります。アプリ側の `motion.ts` などモジュールに `'use client'` を付与してください。
+
+## ベストプラクティス（本プロジェクト方針）
+
+- 変形は個別プロパティ指定（`transform` は使用しない）
+- DOM 参照は `ID.Name.E()` で行い、存在ガード後に操作する
+- 一度きりの値・関数はインラインで記述し、過剰な抽出は避ける
