@@ -21,6 +21,23 @@ jobs:
           node-version: 20
           registry-url: 'https://registry.npmjs.org'
 
+      - name: Read package version
+        id: pkg
+        run: echo "version=$(node -p \"require('./package.json').version\")" >> $GITHUB_OUTPUT
+
+      - name: Check if version already published
+        id: check
+        run: |
+          echo "Checking if version ${{ steps.pkg.outputs.version }} is already on npm"
+          npm view @soichiro_nitta/motion versions --json > versions.json || echo "[]" > versions.json
+          if node -e "let a=require('./versions.json');process.exit(a.includes(process.argv[1])?0:1)" "${{ steps.pkg.outputs.version }}"; then
+            echo "should_publish=false" >> $GITHUB_OUTPUT
+            echo "Version already exists on npm. Skipping publish."
+          else
+            echo "should_publish=true" >> $GITHUB_OUTPUT
+            echo "Version not found on npm. Will publish."
+          fi
+
       - name: Install deps
         run: pnpm install --frozen-lockfile
 
@@ -28,6 +45,7 @@ jobs:
         run: pnpm exec tsc
 
       - name: Publish to npm
+        if: steps.check.outputs.should_publish == 'true'
         run: pnpm publish --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
