@@ -17,6 +17,7 @@ export const createMotion = <T extends string>(names: T[]) => {
     let cachedElement: HTMLElement | null = null
     acc[name] = {
       E: () => {
+        // RSC（サーバ環境）では利用できない
         if (!isBrowser) {
           throw new Error('E()はクライアント専用です')
         }
@@ -40,6 +41,7 @@ export const createMotion = <T extends string>(names: T[]) => {
   }
   const motion = {
     delay: (duration: number): Promise<void> => {
+      // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }
@@ -48,6 +50,7 @@ export const createMotion = <T extends string>(names: T[]) => {
       })
     },
     get: (target: TargetTypes, property: keyof CssTypes) => {
+      // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }
@@ -59,6 +62,7 @@ export const createMotion = <T extends string>(names: T[]) => {
       duration: number,
       values: ValuesTypes
     ): { pause: () => void; play: () => void } => {
+      // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }
@@ -104,6 +108,7 @@ export const createMotion = <T extends string>(names: T[]) => {
       }
     },
     set: (target: TargetTypes, values: ValuesTypes): void => {
+      // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }
@@ -118,6 +123,7 @@ export const createMotion = <T extends string>(names: T[]) => {
       easing: 'in' | 'out' | 'inout' | 'bounce' | 'linear',
       values: ValuesTypes
     ) => {
+      // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }

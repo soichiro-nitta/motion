@@ -93,7 +93,7 @@ await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
 ## 注意（Client-only）
 
-本モジュールはクライアント専用です。RSC から参照された場合は `react-server` 条件エクスポートによりスタブが返り、エラーになります。アプリ側の `motion.ts` などモジュールに `'use client'` を付与してください。
+本モジュールはクライアント専用です。ブラウザ環境でない場合（RSC など）に `ID.*.E()` や `motion.*` を呼び出すと例外を投げます。アプリ側で利用するエントリ（例: `app/(default)/motion.ts`）には `'use client'` を付与して、クライアント環境からのみ呼び出してください。
 
 ## ベストプラクティス（本プロジェクト方針）
 
