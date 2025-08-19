@@ -36,7 +36,7 @@ git push origin master --follow-tags
 
 - タグ `v[0-9]+.[0-9]+.[0-9]+` の push をトリガに、`pnpm publish --access public` を実行
 - ワークフローは `.github/workflows/publish.yml`
-- 重複実行防止: 同一 ref では1つのワークフローのみ実行
+- 重複実行防止: 同一 ref では 1 つのワークフローのみ実行
 - 既存バージョンチェック: npm に同じバージョンがある場合は publish をスキップ
 
 ## トラブルシュート
