@@ -1,0 +1,112 @@
+description: コーディング規約（React/Next.js App Router, TypeScript）
+globs: "\*_/_"
+alwaysApply: true
+
+---
+
+## コンポーネント
+
+- **arrow function を使用**（function 宣言は原則不使用）
+- **props は展開しない**（不要な `...props` の横流し禁止）
+- **型定義は `type` を使用**（`interface` は不使用）
+- **`any` は使用禁止**（必要なら明示的な型設計を行う）
+- React Hooks は **名前付きインポート**（`React.useState` などの `React.` プレフィックスは不使用）
+- props の型は **インラインで記述**（再利用時のみ `type` を定義）
+
+## コード構造
+
+- **return は最小限に**（単一 return 推奨。複数行は可）
+- 条件分岐は **`&&` を優先**（三項は原則不使用。必要時のみ可）
+- 変数/関数は **再利用しないものはインライン**で記述
+- 一度きりのスタイルオブジェクトは **インライン**で指定（定数や外部 CSS へ切り出さない）
+- 一度きりの小関数/定数も **インライン**で記述（再利用・共有が必要になった時のみ切り出す）
+- コンポーネント分割は **過剰に行わない**（責務が明確な場合のみ）
+- ファイル内ローカルのマッピング/補助ロジックは **`__` プレフィックス**で関数に切り出し、**ファイル最下部**に配置
+
+### 単回利用の一時変数は作らずインライン化する
+
+- 再利用や明確な可読性向上の根拠がない一時変数の導入を禁止する。
+- セレクタ結果や配列変換結果など、その場で一度だけ使う値はインラインで扱う。
+- 例（禁止 / 許容）
+
+```tsx
+// NG: 一度しか使わない一時変数を導入している
+const children = l.querySelectorAll('path')
+children.forEach((child, index) => {
+  ;(async () => {
+    motion.set(child, {transformBox: 'fill-box'})
+    await motion.delay(index * 0.04)
+    await motion.to(child, 0.6, 'out', {translateY: '61px'})
+  })()
+})
+
+// OK: その場でインラインに処理する
+l.querySelectorAll('path').forEach((child, index) => {
+  ;(async () => {
+    motion.set(child, {transformBox: 'fill-box'})
+    await motion.delay(index * 0.04)
+    await motion.to(child, 0.6, 'out', {translateY: '61px'})
+  })()
+})
+```
+
+- 例外: 同一式を2回以上参照する、式が複雑で名前付けにより読みやすさが明確に上がる、API 結果の共有が必要——などの場合は一時変数を許容する。
+
+## コード品質基準（初期実装/セルフチェック/リファクタ時）
+
+- 型定義は **インライン化**（別定義は削除。再利用時のみ `type` 定義）
+- 重複パターンは **オブジェクトリテラル**で統合
+- コンポーネントは **単一の return 文**に収束
+- 条件分岐は **オブジェクトインデックス**で置換できないか検討
+
+## 命名規則
+
+- `useState`: `stateXXX`, `setXXX`
+- `useRef`: `refXXX`
+- 反復処理コールバック（forEach/map/reduce など）の引数は **1–2 文字**（例: `p`, `i`）
+- 同コールバック内のみで完結する一時変数も **1–2 文字**を許容（冗長な命名を避け、限定スコープを示唆するため）
+- ドメイン関数: 動詞ベース（例: `get`, `getById`, `add`, `update`, `remove`）
+- ページ/レイアウトの変数名: ページは **`Page`**、レイアウトは **`Layout`** に統一（default export）
+
+```tsx
+// OK: 限定スコープ（コールバック内）の引数・変数は 1–2 文字
+l.querySelectorAll('path').forEach((p, i) => {
+  // p, i はこのブロック内だけで完結
+})
+
+// NG: 限定スコープにもかかわらず冗長な命名
+l.querySelectorAll('path').forEach((pathElement, index) => {
+  // 命名が冗長で読みやすさを損なう
+})
+```
+
+## ファイル/フォルダ構成と命名
+
+- ページ配下構成（RSC + Client 分離）
+  - **クライアント側ロジックは `_Client/`** へ分離（`page.tsx` は RSC のまま）
+  - 1 回しか使わない子は **`_` プレフィックス**（例: `_DialogEdit.tsx`）
+  - ファイル内ローカルの補助ロジックは **`__` プレフィックス**で切り出し、**ファイル最下部**に配置
+- 命名
+  - コンポーネント: **パスカルケース**（例: `ItemCard/index.tsx`）
+  - ディレクトリ: **ケバブケース** または用途に応じた予約名（`_Client`, `_Header` など）
+  - API/サーバ: **動詞ベース**（`get`, `getById`, `add`, `update`, `remove`）
+  - **再利用しない細分化は避ける**
+
+## import / エイリアス
+
+- `@` は **プロジェクトルート**を指す（`tsconfig.json` の `paths` に準拠）
+- React Hooks は **名前付きインポート**（例: `import { useEffect } from "react";`）
+
+## Convex 命名規則（使用する場合）
+
+- CRUD: `get`, `getById`, `add`, `update`, `remove`
+- 関数名に **ドメイン名は含めない**（例: `api.transactions.updateStatus` のように使用）
+
+---
+
+補足（本プロジェクト方針との整合）
+
+- **Next.js App Router**: DOM/API 依存はクライアント（`"use client"`）で実装
+- **Tailwind v4**: 数字は既定で `tabular-nums`、必要箇所のみ `proportional-nums`
+- **Motion**: `@soichiro_nitta/motion` を採用、`app/motion.ts` に ID と motion を集約、ID は **UPPER_SNAKE_CASE**
+- **パッケージマネージャ**: 常に **pnpm** を使用

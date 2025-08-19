@@ -1,0 +1,46 @@
+---
+description: '@soichiro_nitta/motion の ID 定義と要素アクセス規約（ID.E() での参照を標準化）'
+globs:
+  - '**/*'
+alwaysApply: true
+---
+
+## 目的
+
+- Motion の ID 管理と DOM 要素アクセスを統一し、可読性・安全性・再利用性を高める。
+
+## 前提
+
+- Motion は `@soichiro_nitta/motion` を使用する。
+- `app/(default)/motion.ts` に `createMotion([...])` で ID を一元管理し、`{ ID, motion }` をエクスポートする。
+- ID 名は UPPER_SNAKE_CASE を用いる。
+
+## ルール
+
+- **ID の追加**: 新規 ID は `app/(default)/motion.ts` の `createMotion([...])` に追記する。
+- **要素参照**: ID に紐づく要素参照は `ID.XXX.E()` を用いる。`querySelector` / `getElementById` 等の直接参照は原則使用しない。
+- **存在ガード**: DOM 操作前に `if (!ID.XXX.E()) return` などのガード節で存在確認を行う。DOM 操作で `try/catch` は使用しない。
+- **アニメーション適用**: `motion.set` / `motion.to` には ID（文字列キー）または要素を渡す。複合プロパティ `transform` は禁止し、個別キー（`translateY` など）で指定する。
+- **型の取り扱い**: 不要な型アサーション（`as ...`）は避け、ガード節で型を絞る。
+- **実行環境**: DOM 参照はクライアントコンポーネント（`"use client"`）で行い、RSC から直接アクセスしない。
+
+## 推奨実装（例）
+
+```ts
+// 例: ストーカー内のテキストを更新し、幅に応じて中央寄せする
+const el = ID.STALKER_INNER.E()
+if (!el) return
+el.children[0].innerHTML = href
+motion.set('STALKER_INNER', { marginLeft: `-${el.clientWidth / 2}px` })
+```
+
+## 禁止事項
+
+- `querySelector` / `getElementById` / data-\* などでの手動参照（ID の二重管理や責務混在を招くため）
+- DOM 操作における `try/catch` での握りつぶし
+- `motion.set` / `motion.to` に対する複合 `transform` の指定
+
+## 運用
+
+- レビューでは上記ルール（特に `ID.XXX.E()` の使用と存在ガード、`transform` の未使用）を確認する。
+- 既存コードで逸脱がある場合は、段階的に `ID` ベースへ移行する。

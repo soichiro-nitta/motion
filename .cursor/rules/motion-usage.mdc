@@ -1,0 +1,121 @@
+description: Motion API 利用規約（to/set/repeat/delay の使い分け）
+globs: "\*_/_"
+alwaysApply: true
+
+このルールは `@soichiro_nitta/motion` の API 利用指針を定める。特に `delay` の使い方を明確化する。
+
+基本方針
+
+- 変化は基本 `transform`/`opacity`（例: `scale`, `translateY`, `rotate`, `opacity`）に限定する
+- DOM 参照は `ref` or `ID` のプロジェクト方針に従う（詳細は `dom-reference-policy.mdc`）
+- 一度きりの値はインラインで記述する（マジックナンバーは意味のある変数化が必要なときのみ）
+
+delay の使い方（重要）
+
+- `motion.delay(sec)` は「待機のみ」を行う。常に `await` を付けて非同期フロー内で使用する
+  - 例: `await motion.delay(0.4)`
+- 前アニメーションの完了を待ってから次を開始したい場合は、`delay` ではなく `await motion.to(...)` を用いる
+  - 例: `await motion.to(el, 0.4, 'out', {...}); await motion.to(el, 0.4, 'in', {...})`
+- 意図的に「オーバーラップ/オフセット」を作りたい場合に `delay` を使う
+  - 例: 先に A を開始し、0.4 秒後に B を開始したい
+
+```tsx
+// A を開始（待たない）→ 0.4 秒待つ → B を開始
+motion.to(a, 0.4, 'out', {scale: '1'})
+await motion.delay(0.4)
+motion.to(b, 0.4, 'out', {opacity: '1'})
+```
+
+ルール（実装上の原則）
+
+- `delay` は「隙間を作る」ためにのみ使用し、完了待ちには使わない
+- 変形は個別キー（`rotate`, `scale`, `translateX/Y/Z`）で指定し、`transform` 文字列は使用しない
+- `motion.to` は 4 引数固定。遅延は第5引数では渡さず、`motion.delay` で制御する
+- `setTimeout`/`setInterval` は使用しない。待機は `motion.delay` に統一する
+- 連鎖は即時関数（`;(async () => { ... })()`）や `onClick` の `async` で記述し、`await` を明示する
+- 長時間ループや継続処理（`while` + `delay` など）が必要な場合は `mounted` フラグでアンマウント時に停止できるようにする
+  - ただし、往復や繰り返しは可能な限り `motion.repeat` を優先し、`pause()/play()` で制御する
+
+repeat の使い方（推奨パターン）
+
+- 繰り返しアニメーションは `motion.repeat(target, duration, values)` を使用する
+- 初期値が必要な場合は先に `motion.set` で明示する
+- ライフサイクルで停止できるよう、戻り値（コントローラ）を必ず保持し、`useEffect` のクリーンアップで `pause()` する
+- 回転スピナーは `easing: 'linear'`、`duration: 1.0–1.5s/周` を目安にし、`transformOrigin` を適切に指定する
+
+```tsx
+'use client'
+import {useEffect, useRef} from 'react'
+import {motion} from '@/app/motion'
+
+export const Spinner = () => {
+  const refSpinner = useRef<SVGGElement | null>(null)
+
+  useEffect(() => {
+    let controller: {pause: () => void} | null = null
+    ;(async () => {
+      const el = refSpinner.current
+      if (el) {
+        await motion.set(el, {rotate: '0deg'})
+        controller = motion.repeat(el, 1.2, {rotate: '360deg'})
+      }
+    })()
+    return () => {
+      if (controller) controller.pause()
+    }
+  }, [])
+
+  return (
+    <svg viewBox='0 0 100 100'>
+      <g ref={refSpinner} style={{transformBox: 'fill-box', transformOrigin: '50% 50%'}}>
+        <circle cx='50' cy='50' r='20' fill='currentColor' />
+      </g>
+    </svg>
+  )
+}
+```
+
+注意事項
+
+- 同じ値での無限繰り返しが必要な場合は `while` ループではなく `repeat` を使う
+- 再生・一時停止を UI から制御する場合は、コントローラを `useRef` に保持して `play()`/`pause()` を呼び出す
+- `prefers-reduced-motion` が有効な環境では繰り返しを開始しない、または速度を大きく下げる
+
+型・値のガイド（抜粋）
+
+- `motion.to(target, duration, easing, values)` は `Promise<void>` を返す
+- `values` は `ValuesTypes` に準拠
+  - `scale`, `scaleX`, `scaleY`: string | number（例: `'1'`, `'1.04'`）。本プロジェクトでは一貫性のため文字列を推奨
+  - `rotate*`: string（deg 単位, 例: `'0deg'`, `'360deg'`）
+  - `translate*`: string（px 単位, 例: `'12px'`, `'0px'`）
+  - `opacity`: string（例: `'0'`, `'1'`）
+
+短例（ref を 1–2 文字に束ねて使用）
+
+```tsx
+'use client'
+import {useEffect, useRef} from 'react'
+import {motion} from '@/app/motion'
+
+export const Example = () => {
+  const refA = useRef<HTMLDivElement | null>(null)
+  const refB = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    ;(async () => {
+      const a = refA.current
+      const b = refB.current
+      if (a && b) {
+        motion.to(a, 0.4, 'out', {scale: '1'})
+        await motion.delay(0.4)
+        await motion.to(b, 0.4, 'out', {opacity: '1'})
+      }
+    })()
+  }, [])
+  return (
+    <>
+      <div ref={refA} style={{transform: 'scale(0.9)'}} />
+      <div ref={refB} style={{opacity: '0'}} />
+    </>
+  )
+}
+```

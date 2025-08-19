@@ -1,0 +1,48 @@
+---
+description: 命名規則（役割優先・ドメイン後置）
+globs: '**/*'
+alwaysApply: true
+---
+
+## 目的
+
+- 変数・関数・props の命名で、まず「プログラム上の役割」を示し、その後に「ドメイン」を置くことで、一貫性と可読性を高める。
+
+## 基本原則
+
+- 役割を先頭に置く（例: state, set, ref, id, key, on/handle, get/add/update/remove, context, map/list など）
+- ドメイン名はその後ろに続ける（例: `stateUser`, `refSvg`, `idUser`, `onUserClick`, `getUserById`）
+- 略語は避け、意味の分かる完全な語を用いる（既存のコーディング規約に準拠）
+
+## 例（OK）
+
+- `refSvg`, `refInput`, `refDialog`
+- `stateUser`, `setUser`
+- `idUser`, `keySession`
+- `onUserClick`, `handleUserSubmit`
+- `getUserById`, `updateUserStatus`, `removeTransaction`
+- `listUsers`, `mapUserIdToUser`
+- `contextAuth`, `serviceBilling`
+
+## 例（NG）
+
+- `svgRef`, `inputRef`
+- `userState`, `userId`, `sessionKey`
+- `userClickHandler`, `userOnClick`
+- `userGetById`, `userUpdateStatus`
+- `usersList`, `userIdToUserMap`
+- `authContext`, `billingService`
+
+## 適用範囲
+
+- 変数名、props 名、関数名、フック返却値
+- ファイル内ローカルの補助ロジック名（`__` の規約は既存ルールに従う）
+
+## 例外
+
+- 外部 API/仕様・DB カラム・ライブラリの公開 API に合わせる必要がある場合は例外とする。
+- Set/Map などの組込み型表現で曖昧さが出る場合は、可読性を最優先して命名してよい。
+
+## 補足
+
+- 既存の `stateXXX`・`refXXX`・ドメイン関数（動詞ベース）のルールと整合する。

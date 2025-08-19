@@ -1,0 +1,44 @@
+---
+description: DOM 操作における try/catch の使用禁止と、その代替手段（ガード節・型の絞り込み）
+globs: '**/*'
+alwaysApply: true
+---
+
+# DOM 操作で try/catch を使わない
+
+- 目的: 例外依存の制御フローを避け、可読性と静的安全性を高める。
+- 対象: ブラウザ DOM / SVG 操作、`ref` 経由の要素アクセス、`querySelector(…)` の結果利用など。
+
+## ルール
+
+- DOM 操作時に `try { … } catch { … }` は使用しない。
+- 代わりに以下を徹底する。
+  - ガード節での存在確認（例: `if (!el) return` / 早期 return）
+  - 型の絞り込み（`useRef<HTMLElement | null>` などの適切な型）
+  - 不透明度や style 操作は要素の存在が保証された後に行う
+- 例外を握りつぶすような `catch {}` は禁止。
+
+## 許容される例外
+
+- DOM 以外の領域（ネットワーク、JSON パース、暗号、外部 API など）で、例外が仕様として発生し得る処理に限定して `try/catch` を検討可。
+- その場合でも、可能な限り事前検証・バリデーションでエラーを予防すること。
+
+## 実装例（推奨）
+
+```ts
+// NG: 例外に依存
+// try {
+//   const el = root.querySelector('#target')!
+//   el.setAttribute('opacity', '0')
+// } catch {}
+
+// OK: ガード節 + 型
+const el = root.querySelector('#target') as SVGElement | null
+if (!el) return
+el.setAttribute('opacity', '0')
+```
+
+## 運用
+
+- 既存コードに try/catch がある場合、段階的にガード節へ置換する。
+- コードレビューでは本ルールへの適合を確認する。

@@ -1,0 +1,14 @@
+---
+description: パッケージマネージャのルール（pnpm固定）
+globs: "**/*"
+alwaysApply: true
+---
+
+## パッケージマネージャのルール
+
+- このワークスペースでは **常に pnpm** を使用する。
+- npm / yarn は使用しない（ドキュメント・スクリプト・コマンド例も pnpm 前提）。
+- 依存追加は `pnpm add`、開発依存は `pnpm add -D`、インストールは `pnpm install` を使用する。
+- ロックファイルは `pnpm-lock.yaml` のみを管理する。`package-lock.json` / `yarn.lock` は作成・コミットしない。
+- CI/CD でも pnpm を使用する。
+

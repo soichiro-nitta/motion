@@ -1,0 +1,67 @@
+description: DOM参照ポリシー（IDとrefの使い分け）
+
+globs: "\*_/_"
+alwaysApply: true
+
+このプロジェクトでは、DOM参照は以下の方針に従う。
+
+- 単一コンポーネント内のみで完結する一時的な参照: React の `ref` を使用する
+  - 例: 同一コンポーネント内でマウント時にフェードイン、ボタンクリック時の軽微なスケールなど
+  - 実装: `const refEl = useRef<HTMLElement | null>(null)` を定義し、`ref={refEl}` を付与して `motion.to(refEl.current, ...)` を実行
+  - 記法ルール（重要）: `ref.current` を直接多用しない。必ず 1–2 文字の一時変数に代入してから null チェック・使用する
+    - 例: `const b = refBox.current; if (b) { await motion.to(b, 0.3, 'out', {...}) }`
+  - 早期リターン禁止: `if (!ref.current) return` のような早期リターンは使用しない
+    - 理由: クリーンアップや後段処理の一貫性が崩れるため。代わりに「ガードブロック」で囲う
+    - 推奨: `const el = ref.current; if (el) { ... }`
+
+- 複数回使う/ページやコンポーネントをまたいで参照・制御する要素: `id`（`app/motion.ts` の ID 管理）を使用する
+  - `app/motion.ts` で `createMotion(["FOO", "BAR", ...])` を定義し、`export const { ID, motion } = ...` を用いる
+  - 参照側は `id={ID.FOO.N}` を要素に付与し、`motion.to('FOO', ...)` のように ID 文字列で参照する
+
+- 同一要素に対して `ref` と `id` の併用は避ける（どちらかに統一）
+- SSR 環境では直接 DOM を参照しない。`ref`/`ID` の取得・アニメーション呼び出しはクライアントマウント後（`useEffect`）に行う
+- 変化プロパティは原則 `transform`/`opacity` を優先し、レイアウトコストの高いプロパティのアニメーションは避ける
+  - transform の表記・型ガイド（`ValuesTypes` に準拠）
+    - `scale`, `scaleX`, `scaleY`: 文字列または数値（例: `'1'`, `'1.04'`, `1.2`）。本プロジェクトでは一貫性のため文字列を推奨
+    - `rotate`, `rotateX`, `rotateY`, `rotateZ`: 文字列（deg 指定。例: `'0deg'`, `'360deg'`）
+    - `translateX`, `translateY`, `translateZ`: 文字列（px 指定を基本。例: `'12px'`, `'0px'`）
+    - `opacity`: 文字列（例: `'0'`, `'1'`）
+  - 推奨順序: 単純なフィードバックは `scale` を優先し、Y 移動は `translateY` を使用。`width`/`height` 等のレイアウト系は避ける
+
+サンプル（単一コンポーネント内: ref）
+
+```tsx
+'use client'
+import {useEffect, useRef} from 'react'
+import {motion} from '@/app/motion'
+
+export const Example = () => {
+  const refBox = useRef<HTMLDivElement | null>(null)
+  useEffect(() => {
+    ;(async () => {
+      const el = refBox.current
+      if (el) {
+        await motion.to(el, 0.3, 'out', {opacity: '1', translateY: '0px'})
+      }
+    })()
+  }, [])
+  return <div ref={refBox} style={{opacity: '0', transform: 'translateY(8px)'}} />
+}
+```
+
+サンプル（跨ぎ参照: ID）
+
+```tsx
+// app/motion.ts
+import {createMotion} from '@soichiro_nitta/motion'
+export const {ID, motion} = createMotion(['BOX'])
+
+// 使用側
+<div id={ID.BOX.N} />
+await motion.to('BOX', 0.4, 'out', {opacity: '1'})
+```
+
+補足
+
+- 依存・コマンドは常に pnpm を使用する
+- React Hooks は名前付きインポートを用いる

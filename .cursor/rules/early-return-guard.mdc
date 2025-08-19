@@ -1,0 +1,35 @@
+description: コーディングスタイル（早期リターン禁止・ガードブロック推奨）
+globs: "\*_/_"
+alwaysApply: true
+
+このプロジェクトでは、ロジックの一貫性とクリーンアップ処理の確実性を保つため、原則として早期リターンを禁止する。
+
+原則
+
+- 早期リターン（例: `if (!cond) return`）は使用しない
+- 条件に応じた分岐は「ガードブロック」で包む
+  - 例: `if (cond) { /* 本処理 */ }`
+- `ref` の null チェックもガードブロックで行い、後続の処理（クリーンアップ含む）を常に到達可能にする
+
+例（useEffect 内の async 即時関数を最上位に配置）
+
+```tsx
+useEffect(() => {
+  let controller: {pause: () => void} | null = null
+  ;(async () => {
+    const el = ref.current
+    if (el) {
+      await motion.set(el, {opacity: '1'})
+      controller = motion.repeat(el, 1.2, {rotate: '360deg'})
+    }
+  })()
+  return () => {
+    if (controller) controller.pause()
+  }
+}, [])
+```
+
+例外
+
+- ライブラリの制約やエラー処理で「即座に終了する」ことが API として明確な場合のみ早期リターン可
+- その場合でも、必要なクリーンアップやログを欠かさない

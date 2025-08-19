@@ -1,0 +1,32 @@
+---
+description: React の props 取り扱いルール（props 展開禁止・props.xxx 参照）
+globs: '**/*'
+alwaysApply: true
+---
+
+## 目的
+
+- 不要な `...props` の横流しを防ぎ、責務の混在と予期せぬ副作用を抑止する。
+- props の明示参照で型の見通しと可読性を高める。
+
+## ルール
+
+- コンポーネントで **props の展開（`...props`）は使用しない**。
+- props は **`props.xxx` として明示的に参照**する（分割代入は必要時のみ最小限）。
+- DOM 属性へ渡す際も **必要な属性だけ**を個別に指定する。
+
+## 例（禁止）
+
+```tsx
+export const Button = (props: {onClick?: () => void; className?: string}) => {
+  return <button {...props} />
+}
+```
+
+## 例（許容）
+
+```tsx
+export const Button = (props: {onClick?: () => void; className?: string}) => {
+  return <button onClick={props.onClick} className={props.className} />
+}
+```

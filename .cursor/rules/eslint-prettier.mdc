@@ -1,0 +1,19 @@
+description: ESLint/Prettier の設定方針（Flat Config / prettier-plugin-tailwindcss）
+globs: "\*_/_"
+alwaysApply: true
+
+以下の設定方針を採用します。
+
+- ESLint は Flat Config（`eslint.config.mjs`）を使用する。
+- `@next/next/no-img-element` はオフにする（`next/image` 非使用方針と整合）。
+- import 並び順は `import/order` でアルファベット昇順、グループ単位に改行を入れる。
+- React Hooks の `rules-of-hooks` は off、`exhaustive-deps` は warn。
+- TypeScript は `no-explicit-any: warn`、`consistent-type-imports: error`、`no-unused-vars: warn`（`^_` は無視）。
+- `**/app/**/page.{js,jsx,ts,tsx}` では `"use client"` を禁止（Client コンポーネントへ分離）。
+- Client → Server/Page の直 import を禁止（`**/*.client.*` → `no-restricted-imports`）。
+- TS ファイルから `page.tsx` への直 import を禁止。
+- Prettier は `prettier-plugin-tailwindcss` を使用し、`prettier.config.mjs` にてルールを定義する。
+
+補足:
+
+- Tailwind ESLint プラグイン（eslint-plugin-tailwindcss）は v4 と互換の問題があるため、現状はプラグイン登録を外しています。将来 v4 対応が整い次第、再有効化してください。

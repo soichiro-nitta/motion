@@ -1,0 +1,58 @@
+---
+description: Motion のプロパティ指定ルール（transform 禁止・個別プロパティ指定）
+globs: '**/*'
+alwaysApply: true
+---
+
+## Motion のプロパティ指定ルール
+
+- `@soichiro_nitta/motion` の `motion.set` / `motion.to` に、CSS 複合プロパティの `transform` は渡さない。
+- 変形は必ず個別キーで指定する。
+  - 使用例: `translateX`, `translateY`, `translateZ`, `scale`, `scaleX`, `scaleY`, `rotate`, `skewX`, `skewY`
+- 原点・ボックスは通常のキーとして指定可。
+  - `transformOrigin`, `transformBox`
+- 数値・角度・長さは単位付きの文字列で指定する（例: `'61px'`, `'120deg'`, `'1'`）。
+
+## 型の取り扱い（TypeScript）
+
+- `motion.set` / `motion.to` の呼び出しで、不要な型アサーション（`as ...`）を使用しない。
+  - 要素の存在確認（ガード）とセレクタの適切な指定で型を絞る。
+  - DOM API の戻り値に基づく自然な推論を優先する。
+  - どうしても必要な場合のみ、前段の変数定義で安全に型を絞る（コールサイトでは行わない）。
+
+### NG（禁止）
+
+```ts
+// 複合プロパティ transform を渡している
+motion.to(el, 1.2, 'out', {transform: 'translateY(61px)', rotate: '120deg'})
+motion.set(el, {transform: 'scale(0)'})
+
+// 不要な型アサーション
+motion.to(el as SVGGraphicsElement, 0.8, 'out', {translateY: '61px'})
+```
+
+### OK（推奨）
+
+```ts
+// 個別プロパティで指定する
+motion.to(el, 1.2, 'out', {translateY: '61px', rotate: '120deg'})
+motion.set(el, {scale: '0'})
+
+// 直下の子から <g> を除外して自然に型を扱う（ガードで存在確認）
+Array.from(svg.children)
+  .filter(e => e.tagName.toLowerCase() !== 'g')
+  .forEach((node, i) => {
+    if (!(node instanceof SVGGraphicsElement)) return
+    ;(async () => {
+      motion.set(node, {transformBox: 'fill-box'})
+      await motion.delay(i * 0.04)
+      await motion.to(node, 0.8, 'out', {translateY: '61px'})
+    })()
+  })
+```
+
+## 運用
+
+- コードレビューでは `transform:` キーの使用を検出した場合は差し戻す。
+- 既存コードに `transform:` がある場合は、段階的に個別プロパティへ置換する。
+- `motion.*` 呼び出しにおける不要な `as` の使用を検出した場合は指摘し、前段での型絞り込み（ガード節やセレクタの見直し）で解消する。
