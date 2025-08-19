@@ -97,6 +97,6 @@ await motion.to(ID.Box, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 - 変形は個別プロパティ指定（`transform` は使用しない）
 - DOM 参照は `ID.Name.E()` で行い、存在ガード後に操作する
 - 一度きりの値・関数はインラインで記述し、過剰な抽出は避ける
- - クライアントモジュールに `'use client'`
- - React Hooks は名前付きインポート（`import { useEffect } from 'react'`）
- - props の横流し（`...props`）は行わず、必要な属性のみを指定
+- クライアントモジュールに `'use client'`
+- React Hooks は名前付きインポート（`import { useEffect } from 'react'`）
+- props の横流し（`...props`）は行わず、必要な属性のみを指定
