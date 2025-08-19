@@ -2,35 +2,23 @@ import { BEZIER, CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from './const'
 import { genStyleFromValues } from './genStyleFromValues'
 import { genValuesFromTransform } from './genValuesFromTransform'
 
+const isBrowser =
+  typeof window !== 'undefined' &&
+  typeof document !== 'undefined' &&
+  typeof document.createElement === 'function'
+
 export const createMotion = <T extends string>(names: T[]) => {
   type TargetTypes = (HTMLElement | Element) | T
 
   if (names.length !== new Set(names).size) {
     throw new Error('Duplicate names are not allowed')
   }
-  const idObj = <T extends string>(name: T) => {
-    let cachedElement: HTMLElement | null = null
-    return {
-      E: () => {
-        if (!cachedElement) {
-          const el = document.getElementById(name as string)
-          if (el) {
-            cachedElement = el
-          } else {
-            throw new Error(`Element not found: ${name}`)
-          }
-        }
-        return cachedElement
-      },
-      N: name,
-    }
-  }
   const ID = names.reduce((acc, name) => {
     let cachedElement: HTMLElement | null = null
     acc[name] = {
       E: () => {
-        if (typeof document === 'undefined') {
-          throw new Error('E() はクライアント専用です')
+        if (!isBrowser) {
+          throw new Error('E()はクライアント専用です')
         }
         if (!cachedElement) {
           const el = document.getElementById(name as string)
@@ -45,18 +33,24 @@ export const createMotion = <T extends string>(names: T[]) => {
       N: name,
     }
     return acc
-  }, {} as Record<T, ReturnType<typeof idObj>>)
+  }, {} as Record<T, { N: T; E: () => HTMLElement }>)
 
   const getElement = (target: TargetTypes) => {
     return typeof target == 'string' ? ID[target].E() : (target as HTMLElement)
   }
   const motion = {
     delay: (duration: number): Promise<void> => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
       return new Promise((resolve): void => {
         setTimeout(resolve, duration * 1000)
       })
     },
     get: (target: TargetTypes, property: keyof CssTypes) => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
       const el = getElement(target)
       return window.getComputedStyle(el)[property as any]
     },
@@ -65,6 +59,9 @@ export const createMotion = <T extends string>(names: T[]) => {
       duration: number,
       values: ValuesTypes
     ): { pause: () => void; play: () => void } => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
       const el = getElement(target)
       const originalValues = genValuesFromTransform(el.style.transform)
       const state = {
@@ -107,6 +104,9 @@ export const createMotion = <T extends string>(names: T[]) => {
       }
     },
     set: (target: TargetTypes, values: ValuesTypes): void => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
       const el = getElement(target)
       const originalValues = genValuesFromTransform(el.style.transform)
       const style = genStyleFromValues(Object.assign(originalValues, values))
@@ -118,6 +118,9 @@ export const createMotion = <T extends string>(names: T[]) => {
       easing: 'in' | 'out' | 'inout' | 'bounce' | 'linear',
       values: ValuesTypes
     ) => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
       const el = getElement(target)
       const originalValues = genValuesFromTransform(el.style.transform)
       const style = genStyleFromValues(Object.assign(originalValues, values))
