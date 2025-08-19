@@ -20,7 +20,7 @@ pnpm add @soichiro_nitta/motion
 import { createMotion } from '@soichiro_nitta/motion'
 
 // ID 名は UPPER_SNAKE_CASE（プロジェクト規約）
-export const { ID, motion } = createMotion(['BOX', 'TITLE'] as const)
+export const { ID, motion } = createMotion(['BOX', 'TITLE'])
 ```
 
 2. コンポーネントで利用（矢印関数 + default export 名は Page）
@@ -54,7 +54,7 @@ export default Page
 ```ts
 import { createMotion } from '@soichiro_nitta/motion'
 
-const { ID, motion } = createMotion(['BOX'] as const)
+const { ID, motion } = createMotion(['BOX'])
 await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 ```
 
