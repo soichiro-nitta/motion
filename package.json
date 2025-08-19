@@ -12,10 +12,7 @@
   },
   "homepage": "https://github.com/soichiro-nitta/motion",
   "exports": {
-    ".": {
-      "react-server": "./out/rsc-stub.js",
-      "default": "./out/index.js"
-    }
+    ".": "./out/index.js"
   },
   "publishConfig": {
     "access": "public"
