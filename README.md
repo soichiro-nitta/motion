@@ -19,31 +19,34 @@ pnpm add @soichiro_nitta/motion
 
 import { createMotion } from '@soichiro_nitta/motion'
 
-export const { ID, motion } = createMotion(['Box', 'Title'] as const)
+// ID 名は UPPER_SNAKE_CASE（プロジェクト規約）
+export const { ID, motion } = createMotion(['BOX', 'TITLE'] as const)
 ```
 
-2. コンポーネントで利用
+2. コンポーネントで利用（矢印関数 + default export 名は Page）
 
 ```tsx
 'use client'
 import { useEffect } from 'react'
 import { ID, motion } from '~/app/(default)/motion'
 
-export default function Example() {
+const Page = () => {
   useEffect(() => {
-    // 0.5秒でフェードイン
-    void motion.to(ID.Box, 0.5, 'out', { opacity: '1' })
+    // 0.5秒でフェードイン（変形は個別キー）
+    void motion.to(ID.BOX, 0.5, 'out', { opacity: '1' })
   }, [])
 
   return (
     <div>
-      <div id={ID.Box.N} style={{ opacity: 0 }}>
+      <div id={ID.BOX.N} style={{ opacity: 0 }}>
         Hello
       </div>
-      <h1 id={ID.Title.N}>Title</h1>
+      <h1 id={ID.TITLE.N}>Title</h1>
     </div>
   )
 }
+
+export default Page
 ```
 
 ## 素の DOM での利用
@@ -51,8 +54,8 @@ export default function Example() {
 ```ts
 import { createMotion } from '@soichiro_nitta/motion'
 
-const { ID, motion } = createMotion(['Box'] as const)
-await motion.to(ID.Box, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
+const { ID, motion } = createMotion(['BOX'] as const)
+await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 ```
 
 ## API
@@ -64,8 +67,8 @@ await motion.to(ID.Box, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
 - `ID[name]`
 
-  - `name` に紐づく要素参照のヘルパ。`ID.Box.N` は `id` 文字列、`ID.Box.E()` は `HTMLElement` を返します。
-  - 通常は `motion.*` の `target` に `ID.name` を渡せばよいです。
+  - `name` に紐づく要素参照のヘルパ。`ID.BOX.N` は `id` 文字列、`ID.BOX.E()` は `HTMLElement` を返します。
+  - 通常は `motion.*` の `target` に `ID.NAME` を渡せばよいです。
 
 - `motion.set(target, values)`
 
