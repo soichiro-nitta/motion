@@ -1,0 +1,20 @@
+# Cursor Rules for this repo
+
+## Editing
+- Preserve existing indentation style and width.
+- Prefer minimal diffs; avoid unrelated reformatting.
+- Follow the project TypeScript settings (`tsconfig.json`).
+
+## Commits
+- Use conventional commits: feat, fix, chore, docs, refactor, ci, test, perf.
+- Summaries in Japanese when authoring in this repo.
+
+## Release
+- Use `pnpm release` (np) to bump version and create tag locally.
+- Push with `--follow-tags` to trigger CI publish.
+- Do not publish locally; CI publishes on tag via `publish.yml`.
+
+## RSC Guard
+- Do not import this library from React Server Components.
+- The `react-server` export returns a stub that throws; keep it intact.
+
