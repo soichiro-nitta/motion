@@ -20,7 +20,7 @@ import { createId } from '@soichiro_nitta/motion'
 export const ID = createId(['BOX', 'TITLE'])
 ```
 
-Next.js App Router ではこの `ID` モジュールを RSC/Client のどちらからでも参照できるため、ID を一箇所で管理できます。
+Next.js App Router ではこの `ID` モジュールを RSC/Client どちらからでも import できるため、ID を一箇所で管理できます。
 
 2. クライアント専用モジュールを用意（例: `app/motion.ts`）
 
@@ -73,7 +73,7 @@ export default Page
 - `ID.BOX.E()` は初回アクセス時に `document.getElementById` で取得した要素をキャッシュし、2 回目以降は同じ参照を返すため、繰り返し操作でも DOM 探索コストを抑えられます。
 - `motion.to('BOX', …)` の `'BOX'` は上記キーのエイリアスで、DOM 探索をライブラリが肩代わりします。`ID.BOX.E()` で取得した要素を直接渡すことも可能です。
 
-`app/id.ts` のようなファイルに ID 定義を集約しておくと一箇所で管理できます。Next.js App Router ではこのファイルを RSC/Client どちらからでも import できるため、全ページで同じキーを参照できます。以下はクイックスタート構成（`app/id.ts` で `ID` をエクスポート）を想定した例です。
+以下はクイックスタート構成（`app/id.ts` で `ID` をエクスポート）を想定した例です。
 
 ```tsx
 // app/page.tsx（RSC）
@@ -89,7 +89,7 @@ export default Page
 ```
 
 ```tsx
-// app/(home)/_Client/runMotion.ts（Client）
+// app/RunMotion.tsx（Client）
 'use client'
 import { createMotion } from '@soichiro_nitta/motion'
 import { ID } from '@/app/id'
