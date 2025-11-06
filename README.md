@@ -33,7 +33,7 @@ import { ID } from './id'
 export const { motion } = createMotion(ID)
 ```
 
-3. コンポーネントで利用（矢印関数 + default export 名は Page）
+3. コンポーネントで利用
 
 ```tsx
 'use client'
@@ -73,34 +73,10 @@ export default Page
 - `ID.BOX.E()` は初回アクセス時に `document.getElementById` で取得した要素をキャッシュし、2 回目以降は同じ参照を返すため、繰り返し操作でも DOM 探索コストを抑えられます。
 - `motion.to('BOX', …)` の `'BOX'` は上記キーのエイリアスで、DOM 探索をライブラリが肩代わりします。`ID.BOX.E()` で取得した要素を直接渡すことも可能です。
 
-以下はクイックスタート構成（`app/id.ts` で `ID` をエクスポート）を想定した例です。
-
-```tsx
-// app/page.tsx（RSC）
-import { ID } from '@/app/id'
-
-const Page = () => (
-  <div id={ID.BOX.N}>
-    Content
-  </div>
-)
-
-export default Page
-```
-
-```tsx
-// app/RunMotion.tsx（Client）
-'use client'
-import { createMotion } from '@soichiro_nitta/motion'
-import { ID } from '@/app/id'
-
-const { motion } = createMotion(ID)
-
-export const runMotion = async () => {
-  await motion.to('BOX', 0.3, 'inout', { opacity: '0.8' })
-  const elementBox = ID.BOX.E()
-  await motion.to(elementBox, 0.2, 'out', { opacity: '1' })
-}
+```ts
+const elementBox = ID.BOX.E()
+await motion.to(elementBox, 0.2, 'out', { opacity: '1' })
+elementBox.style.borderRadius = '12px'
 ```
 
 ## 素の DOM での利用
