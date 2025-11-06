@@ -24,7 +24,6 @@ export const ID = createId(['BOX', 'TITLE'])
 
 ```ts
 'use client'
-
 import { createMotion } from '@soichiro_nitta/motion'
 import { ID } from './id'
 
@@ -70,7 +69,11 @@ export default Page
 import { createMotion } from '@soichiro_nitta/motion'
 
 const { ID, motion } = createMotion(['BOX'])
-await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
+// ID.BOX.N は `id` 属性用、motion.* の第一引数は文字列キーを渡す
+await motion.to('BOX', 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
+
+const elementBox = ID.BOX.E()
+await motion.to(elementBox, 0.2, 'out', { opacity: '1' })
 ```
 
 ## API
