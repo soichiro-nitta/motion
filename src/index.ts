@@ -1,18 +1,32 @@
 import { BEZIER, CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from './const'
 import { genStyleFromValues } from './genStyleFromValues'
 import { genValuesFromTransform } from './genValuesFromTransform'
+export { useEffectAsync } from './useEffectAsync'
 
 const isBrowser =
   typeof window !== 'undefined' &&
   typeof document !== 'undefined' &&
   typeof document.createElement === 'function'
 
-export const createMotion = <T extends string>(names: T[]) => {
-  type TargetTypes = (HTMLElement | Element) | T
+type IdMap<T extends string> = Record<T, { N: T }>
+type ClientIdMap<T extends string> = Record<T, { N: T; E: () => HTMLElement }>
+type MotionSource<T extends string> = readonly T[] | IdMap<T>
+type ResolveResult<T extends string> = { idMap: IdMap<T>; names: readonly T[] }
 
+export const createId = <T extends string>(names: readonly T[]): IdMap<T> => {
   if (names.length !== new Set(names).size) {
     throw new Error('Duplicate names are not allowed')
   }
+  return names.reduce((acc, name) => {
+    acc[name] = { N: name }
+    return acc
+  }, {} as IdMap<T>)
+}
+
+export const createMotion = <T extends string>(source: MotionSource<T>) => {
+  type TargetTypes = (HTMLElement | Element) | T
+
+  const { idMap: serverSafeIds, names } = __resolveIds(source)
   const ID = names.reduce((acc, name) => {
     let cachedElement: HTMLElement | null = null
     acc[name] = {
@@ -31,10 +45,10 @@ export const createMotion = <T extends string>(names: T[]) => {
         }
         return cachedElement
       },
-      N: name,
+      N: serverSafeIds[name].N,
     }
     return acc
-  }, {} as Record<T, { N: T; E: () => HTMLElement }>)
+  }, {} as ClientIdMap<T>)
 
   const getElement = (target: TargetTypes) => {
     return typeof target == 'string' ? ID[target].E() : (target as HTMLElement)
@@ -155,4 +169,12 @@ export const createMotion = <T extends string>(names: T[]) => {
   }
 
   return { ID, motion }
+}
+
+function __resolveIds<T extends string>(source: MotionSource<T>): ResolveResult<T> {
+  if (Array.isArray(source)) {
+    return { idMap: createId(source), names: source }
+  }
+  const map = source as IdMap<T>
+  return { idMap: map, names: Object.keys(map) as unknown as readonly T[] }
 }

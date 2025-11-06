@@ -12,28 +12,39 @@ pnpm add @soichiro_nitta/motion
 
 ## クイックスタート（Next.js 推奨構成）
 
-1. クライアント専用モジュールを用意（例: `app/(default)/motion.ts`）
+1. ID をサーバー側で定義（例: `app/id.ts`）
+
+```ts
+import { createId } from '@soichiro_nitta/motion'
+
+export const ID = createId(['BOX', 'TITLE'])
+```
+
+2. クライアント専用モジュールを用意（例: `app/motion.ts`）
 
 ```ts
 'use client'
 
 import { createMotion } from '@soichiro_nitta/motion'
+import { ID } from './id'
 
-// ID 名は UPPER_SNAKE_CASE（プロジェクト規約）
-export const { ID, motion } = createMotion(['BOX', 'TITLE'])
+// `createMotion(ID)` により、第一引数の候補は `keyof typeof ID` になる
+export const { motion } = createMotion(ID)
 ```
 
-2. コンポーネントで利用（矢印関数 + default export 名は Page）
+3. コンポーネントで利用（矢印関数 + default export 名は Page）
 
 ```tsx
 'use client'
-import { useEffect } from 'react'
-import { ID, motion } from '~/app/(default)/motion'
+import { useEffectAsync } from '@soichiro_nitta/motion'
+import { ID } from '@/app/id'
+import { motion } from '@/app/motion'
 
 const Page = () => {
-  useEffect(() => {
-    // 0.5秒でフェードイン（変形は個別キー）
-    void motion.to(ID.BOX, 0.5, 'out', { opacity: '1' })
+  useEffectAsync(async () => {
+    await motion.delay(0.1)
+    await motion.to('BOX', 0.5, 'out', { opacity: '1' })
+    await motion.to('TITLE', 0.5, 'out', { opacity: '1', translateY: '0px' })
   }, [])
 
   return (
@@ -49,6 +60,10 @@ const Page = () => {
 export default Page
 ```
 
+- `ID.BOX.N` などの `N` は DOM の `id` 属性用、`motion.to('BOX', …)` の `'BOX'` は第1引数用のリテラルで、どちらも同じキーを共有します。
+- `useEffectAsync` は `async/await` をそのまま書けるようにするラッパーで、内部で `void` を付けたり Promise を捨てたりする必要がありません。
+- Next.js 16 でのフル実装例（RSC + Client 分離）は検証リポジトリ [motion-rsc-test](https://github.com/soichiro-nitta/motion-rsc-test) を参照してください。
+
 ## 素の DOM での利用
 
 ```ts
@@ -60,15 +75,20 @@ await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
 ## API
 
-- `createMotion(names: string[])`
+- `createId(names: string[])`
 
-  - 指定した `id` 名に対してアクセスヘルパ `ID` と操作関数群 `motion` を返します。
+  - サーバー（RSC）でも安全に利用できる ID 辞書を返します。
+  - 返り値: `{ ID }`（`ID.NAME.N` のみ保持）
+
+- `createMotion(names: string[])`
+  
+  - 指定した `id` 名、または `createId` が返す ID 辞書を受け取り、DOM アクセス付き `ID` と操作関数群 `motion` を返します。
   - 返り値: `{ ID, motion }`
 
 - `ID[name]`
 
   - `name` に紐づく要素参照のヘルパ。`ID.BOX.N` は `id` 文字列、`ID.BOX.E()` は `HTMLElement` を返します。
-  - 通常は `motion.*` の `target` に `ID.NAME` を渡せばよいです。
+  - `createMotion(ID)` を利用すると `motion.*` の第一引数が `keyof typeof ID`（例: `'BOX' | 'TITLE'`） で補完されます。
 
 - `motion.set(target, values)`
 
@@ -77,6 +97,7 @@ await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 - `motion.to(target, duration, easing, values)`
 
   - 指定秒数で目的のスタイルにトランジションします。
+  - `target` は `HTMLElement` か `createMotion(ID)` 由来のキー列挙（例: `'BOX'`）を受け取ります。
   - `easing`: `in | out | inout | bounce | linear`
   - 変形は個別キーで指定します（例: `translateX`, `rotate`, `scale`）。複合 `transform` は渡さないでください。
 
@@ -91,9 +112,13 @@ await motion.to(ID.BOX, 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 - `motion.delay(seconds)`
   - `seconds` 秒待機する `Promise<void>`。
 
+- `useEffectAsync(effect, deps)`
+  - `async/await` をそのまま書ける `useEffect` の薄いラッパー。`effect` が `Promise` を返した場合も自動でハンドリングし、戻り値のクリーンアップがあれば通常の `useEffect` 同様に実行されます。
+
 ## 注意（Client-only）
 
-本モジュールはクライアント専用です。ブラウザ環境でない場合（RSC など）に `ID.*.E()` や `motion.*` を呼び出すと例外を投げます。アプリ側で利用するエントリ（例: `app/(default)/motion.ts`）には `'use client'` を付与して、クライアント環境からのみ呼び出してください。
+- `createId` は RSC から参照可能ですが、`createMotion`/`motion.*`/`ID.*.E()` はブラウザ専用です。
+- ブラウザ環境でない場合にクライアント API を呼び出すと例外を投げます。クライアント用モジュールには `'use client'` を付与してください。
 
 ## ベストプラクティス（本プロジェクト方針）
 
