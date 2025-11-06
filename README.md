@@ -12,13 +12,15 @@ pnpm add @soichiro_nitta/motion
 
 ## クイックスタート（Next.js 推奨構成）
 
-1. ID をサーバー側で定義（例: `app/id.ts`）
+1. ID を共通モジュール（例: `app/id.ts`）で定義
 
 ```ts
 import { createId } from '@soichiro_nitta/motion'
 
 export const ID = createId(['BOX', 'TITLE'])
 ```
+
+Next.js App Router ではこの `ID` モジュールを RSC/Client のどちらからでも参照できるため、ID を一箇所で管理できます。
 
 2. クライアント専用モジュールを用意（例: `app/motion.ts`）
 
@@ -87,7 +89,7 @@ export default Page
 ```
 
 ```tsx
-// app/_Client/runMotion.ts（Client）
+// app/(home)/_Client/runMotion.ts（Client）
 'use client'
 import { createMotion } from '@soichiro_nitta/motion'
 import { ID } from '@/app/id'
