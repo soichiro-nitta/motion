@@ -59,9 +59,46 @@ const Page = () => {
 export default Page
 ```
 
-- `ID.BOX.N` などの `N` は DOM の `id` 属性用、`motion.to('BOX', …)` の `'BOX'` は第1引数用のリテラルで、どちらも同じキーを共有します。
 - `useEffectAsync` は `async/await` をそのまま書けるようにするラッパーで、内部で `void` を付けたり Promise を捨てたりする必要がありません。
 - Next.js 16 でのフル実装例（RSC + Client 分離）は検証リポジトリ [motion-rsc-test](https://github.com/soichiro-nitta/motion-rsc-test) を参照してください。
+
+## ID の使い方
+
+`createId` や `createMotion` が返す `ID` はキーごとに `N`（id 文字列）と `E()`（DOM 参照）を持ち、`motion.*` で利用する第1引数のキーとも一致します。
+
+- `ID.BOX.N`: RSC でも安全な `id` 文字列。`<div id={ID.BOX.N} />` のように使えます。
+- `ID.BOX.E()`: ブラウザで `HTMLElement` を返す関数。`'use client'` なモジュール内でのみ利用できます。
+- `motion.to('BOX', …)` の `'BOX'` は上記キーのエイリアスで、DOM 探索をライブラリが肩代わりします。`ID.BOX.E()` で取得した要素を直接渡すことも可能です。
+
+以下はクイックスタート構成（`app/id.ts` で `ID` をエクスポート）を想定した例です。
+
+```tsx
+// app/page.tsx（RSC）
+import { ID } from '@/app/id'
+
+const Page = () => (
+  <div id={ID.BOX.N}>
+    Content
+  </div>
+)
+
+export default Page
+```
+
+```tsx
+// app/_Client/runMotion.ts（Client）
+'use client'
+import { createMotion } from '@soichiro_nitta/motion'
+import { ID } from '@/app/id'
+
+const { motion } = createMotion(ID)
+
+export const runMotion = async () => {
+  await motion.to('BOX', 0.3, 'inout', { opacity: '0.8' })
+  const elementBox = ID.BOX.E()
+  await motion.to(elementBox, 0.2, 'out', { opacity: '1' })
+}
+```
 
 ## 素の DOM での利用
 
@@ -69,11 +106,7 @@ export default Page
 import { createMotion } from '@soichiro_nitta/motion'
 
 const { ID, motion } = createMotion(['BOX'])
-// ID.BOX.N は `id` 属性用、motion.* の第一引数は文字列キーを渡す
 await motion.to('BOX', 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
-
-const elementBox = ID.BOX.E()
-await motion.to(elementBox, 0.2, 'out', { opacity: '1' })
 ```
 
 ## API
