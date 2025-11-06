@@ -68,6 +68,7 @@ export default Page
 
 - `ID.BOX.N`: RSC でも安全な `id` 文字列。`<div id={ID.BOX.N} />` のように使えます。
 - `ID.BOX.E()`: ブラウザで `HTMLElement` を返す関数。`'use client'` なモジュール内でのみ利用できます。
+- `ID.BOX.E()` は初回アクセス時に `document.getElementById` で取得した要素をキャッシュし、2 回目以降は同じ参照を返すため、繰り返し操作でも DOM 探索コストを抑えられます。
 - `motion.to('BOX', …)` の `'BOX'` は上記キーのエイリアスで、DOM 探索をライブラリが肩代わりします。`ID.BOX.E()` で取得した要素を直接渡すことも可能です。
 
 以下はクイックスタート構成（`app/id.ts` で `ID` をエクスポート）を想定した例です。
