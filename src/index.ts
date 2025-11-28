@@ -2,6 +2,7 @@ import { BEZIER, CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from './const'
 import { genStyleFromValues } from './genStyleFromValues'
 import { genValuesFromTransform } from './genValuesFromTransform'
 export { useEffectAsync } from './useEffectAsync'
+export const runAsync = <T>(task: () => Promise<T>): Promise<T> => task()
 
 const isBrowser =
   typeof window !== 'undefined' &&
