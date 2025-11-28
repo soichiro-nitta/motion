@@ -33,43 +33,32 @@ import { ID } from './id'
 export const { motion } = createMotion(ID)
 ```
 
-3. コンポーネントで利用（page.tsx は RSC のまま、クライアント処理は分離）
+3. コンポーネントで利用
 
 ```tsx
-// app/(home)/page.tsx など（RSC）
-import PageClient from './_Client/Page'
-import { ID } from '@/app/id'
-
-const Page = () => (
-  <main>
-    <div id={ID.BOX.N} style={{ opacity: 0 }}>
-      Hello
-    </div>
-    <h1 id={ID.TITLE.N}>Title</h1>
-    <PageClient />
-  </main>
-)
-
-export default Page
-```
-
-```tsx
-// app/(home)/_Client/Page.tsx（Client Component）
 'use client'
 import { useEffectAsync } from '@soichiro_nitta/motion'
+import { ID } from '@/app/id'
 import { motion } from '@/app/motion'
 
-const PageClient = () => {
+const Page = () => {
   useEffectAsync(async () => {
     await motion.delay(0.1)
     await motion.to('BOX', 0.5, 'out', { opacity: '1' })
     await motion.to('TITLE', 0.5, 'out', { opacity: '1', translateY: '0px' })
   }, [])
 
-  return null
+  return (
+    <div>
+      <div id={ID.BOX.N} style={{ opacity: 0 }}>
+        Hello
+      </div>
+      <h1 id={ID.TITLE.N}>Title</h1>
+    </div>
+  )
 }
 
-export default PageClient
+export default Page
 ```
 
 - `useEffectAsync` は `async/await` をそのまま書けるようにするラッパーで、内部で `void` を付けたり Promise を捨てたりする必要がありません。
