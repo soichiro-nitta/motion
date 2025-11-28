@@ -108,11 +108,37 @@ await motion.to('BOX', 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
 - `motion.set(target, values)`
 
-  - 直ちにスタイルを適用します（トランジションなし）。
+  - 直ちにスタイルを適用します（トランジションなし）。`transitionDuration` 未指定時は `0s` を自動セットします。
 
 - `motion.run(task: () => Promise<unknown>)`
 
   - 即時実行用のユーティリティ。`(async () => { ... })()` の代替として使えます。
+
+### 即時関数パターンの置き換え例
+
+```ts
+useEffectAsync(async () => {
+  const st = refShapeTop.current
+  const tt = refTextTop.current
+  const sb = refShapeBottom.current
+  const tb = refTextBottom.current
+  const u = refUnderline.current
+
+  if (st && tt && sb && tb && u) {
+    motion.run(async () => {
+      await motion.to(st, 1, 'out', { scaleX: '1' })
+      motion.set(tt, { opacity: '1' })
+      motion.set(st, { transformOrigin: 'right center' })
+      await motion.to(st, 1, 'out', { scaleX: '0' })
+    })
+    await motion.delay(0.2)
+    motion.run(async () => {
+      await motion.to(sb, 1, 'out', { scaleX: '1' })
+      motion.set(tb, { opacity: '1' })
+    })
+  }
+}, [])
+```
 
 - `motion.to(target, duration, easing, values)`
 
