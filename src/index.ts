@@ -129,6 +129,9 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
       const el = getElement(target)
       const originalValues = genValuesFromTransform(el.style.transform)
       const style = genStyleFromValues(Object.assign(originalValues, values))
+      if (values.transitionDuration === undefined) {
+        Object.assign(style, { transitionDuration: '0s' })
+      }
       Object.assign(el.style, style)
     },
     to: async (
