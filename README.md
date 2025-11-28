@@ -62,7 +62,7 @@ export default Page
 ```
 
 - `useEffectAsync` は `async/await` をそのまま書けるようにするラッパーで、内部で `void` を付けたり Promise を捨てたりする必要がありません。
-- `runAsync` は即時実行のためのヘルパーで、`(async () => { ... })()` の代わりに `runAsync(async () => { ... })` と書けます（返り値はそのまま Promise）。
+- `motion.run` は即時実行のためのヘルパーで、`(async () => { ... })()` の代わりに `motion.run(async () => { ... })` と書けます（返り値はそのまま Promise）。
 - Next.js 16 でのフル実装例（RSC + Client 分離）は検証リポジトリ [motion-rsc-test](https://github.com/soichiro-nitta/motion-rsc-test) を参照してください。
 
 ## ID の使い方
@@ -110,7 +110,7 @@ await motion.to('BOX', 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 
   - 直ちにスタイルを適用します（トランジションなし）。
 
-- `runAsync(task: () => Promise<unknown>)`
+- `motion.run(task: () => Promise<unknown>)`
 
   - 即時実行用のユーティリティ。`(async () => { ... })()` の代替として使えます。
 

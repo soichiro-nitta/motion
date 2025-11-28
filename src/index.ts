@@ -2,7 +2,6 @@ import { BEZIER, CssTypes, TRANSFORM_PROPERTIES, ValuesTypes } from './const'
 import { genStyleFromValues } from './genStyleFromValues'
 import { genValuesFromTransform } from './genValuesFromTransform'
 export { useEffectAsync } from './useEffectAsync'
-export const runAsync = <T>(task: () => Promise<T>): Promise<T> => task()
 
 const isBrowser =
   typeof window !== 'undefined' &&
@@ -55,6 +54,12 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
     return typeof target == 'string' ? ID[target].E() : (target as HTMLElement)
   }
   const motion = {
+    run: <T>(task: () => Promise<T>): Promise<T> => {
+      if (!isBrowser) {
+        throw new Error('motionの関数はクライアント専用です')
+      }
+      return task()
+    },
     delay: (duration: number): Promise<void> => {
       // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
