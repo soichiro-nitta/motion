@@ -113,6 +113,7 @@ await motion.to('BOX', 0.3, 'inout', { translateX: '20px', opacity: '0.8' })
 - `motion.run(task: () => Promise<unknown>)`
 
   - 即時実行用のユーティリティ。`(async () => { ... })()` の代替として使えます。
+  - `await motion.run(async () => { await motion.to(...); })` のように `await` すれば、内部の最後の `motion.to` 完了まで待ってから次の行へ進みます。
 
 ### 即時関数パターンの置き換え例
 
