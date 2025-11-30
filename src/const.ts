@@ -9,7 +9,10 @@ export const BEZIER = {
   },
 }
 
-export const TRANSFORM_PROPERTIES = [
+export const TRANSFORM_ORDER = [
+  'translateY',
+  'translateX',
+  'translateZ',
   'rotate',
   'rotateX',
   'rotateY',
@@ -17,10 +20,9 @@ export const TRANSFORM_PROPERTIES = [
   'scale',
   'scaleX',
   'scaleY',
-  'translateX',
-  'translateY',
-  'translateZ',
 ]
+
+export const TRANSFORM_PROPERTIES = [...TRANSFORM_ORDER]
 
 export type CssTypes = Properties
 
