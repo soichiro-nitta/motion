@@ -60,6 +60,14 @@ pnpm run prepare
 - **原因**: 同じバージョンを再公開しようとしている
 - **対策**: バージョンを上げてから再度リリース
 
+### `Access token expired or revoked` / 404 Not Found（PUT が 404）
+
+- **原因**: `NPM_TOKEN` が失効・取り消し・権限不足（npm は権限不足時に 404 を返すことがあります）
+- **対策**:
+  - npm で **Automation Token** を作り直す
+  - GitHub Secrets の `NPM_TOKEN` を更新する
+  - Secrets 更新後は **同じタグ（例: `vX.Y.Z`）の workflow を Re-run** すればOK（新しいバージョン/タグを切る必要はありません）
+
 ### 2FA 関連
 
 - npm で 2FA を「発行時必須」にしている場合は Automation Token を使用
