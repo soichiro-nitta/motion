@@ -81,49 +81,123 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
       target: TargetTypes,
       duration: number,
       values: ValuesTypes
-    ): { pause: () => void; play: () => void } => {
+    ): { pause: () => void; play: () => void; stop: () => void; destroy: () => void } => {
       // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
         throw new Error('motionの関数はクライアント専用です')
       }
       const el = getElement(target)
-      const originalValues = genValuesFromTransform(el.style.transform)
-      const state = {
-        after: Object.assign(
-          genStyleFromValues(Object.assign(originalValues, values)),
-          {
-            transitionDuration: `${duration}s`,
-            transitionTimingFunction: 'linear',
+      const includesTransform = Object.keys(values).some((p) =>
+        TRANSFORM_PROPERTIES.includes(p)
+      )
+
+      const after = (() => {
+        const style: CssTypes = {}
+        // 非transform系はそのまま入れる（genStyleFromValuesはtransform:''を含み得るため回避）
+        Object.keys(values).forEach((k) => {
+          if (!TRANSFORM_PROPERTIES.includes(k)) {
+            const prop = k as keyof ValuesTypes
+            Object.assign(style, { [prop]: values[prop] })
           }
-        ),
+        })
+        // transformを変更する場合のみ、元transformを基準に合成してセットする
+        if (includesTransform) {
+          const originalTransformValues = genValuesFromTransform(el.style.transform)
+          const merged = Object.assign({}, originalTransformValues, values)
+          Object.assign(style, { transform: genStyleFromValues(merged).transform })
+        }
+        return Object.assign(style, {
+          transitionDuration: `${duration}s`,
+          transitionTimingFunction: 'linear',
+        })
+      })()
+
+      const state: {
+        after: CssTypes
+        before: Partial<Record<keyof CSSStyleDeclaration, string>>
+        stop: boolean
+        running: boolean
+        timeoutId: number | null
+        rafId: number | null
+      } = {
+        after,
         before: {},
         stop: false,
+        running: false,
+        timeoutId: null,
+        rafId: null,
       }
+
+      // repeatが実際に触るキーだけ保存する（afterのキー + メタプロパティ）
       Object.keys(state.after).forEach((k) => {
         const prop = k as keyof CSSStyleDeclaration
         Object.assign(state.before, { [prop]: el.style[prop] })
       })
-      const anim = () => {
-        if (!state.stop) {
-          Object.assign(el.style, state.before)
-          requestAnimationFrame(() => {
-            Object.assign(el.style, state.after)
-          })
-          setTimeout(() => {
-            requestAnimationFrame(() => {
-              anim()
-            })
-          }, duration * 1000)
+
+      const cancelScheduled = () => {
+        if (state.timeoutId !== null) {
+          clearTimeout(state.timeoutId)
+          state.timeoutId = null
+        }
+        if (state.rafId !== null) {
+          cancelAnimationFrame(state.rafId)
+          state.rafId = null
         }
       }
-      anim()
+
+      const tick = () => {
+        if (state.stop) {
+          state.running = false
+          return
+        }
+
+        Object.assign(el.style, state.before)
+        state.rafId = requestAnimationFrame(() => {
+          state.rafId = null
+          if (state.stop) {
+            state.running = false
+            return
+          }
+
+          Object.assign(el.style, state.after)
+          state.timeoutId = window.setTimeout(() => {
+            state.timeoutId = null
+            state.rafId = requestAnimationFrame(() => {
+              state.rafId = null
+              tick()
+            })
+          }, duration * 1000)
+        })
+      }
+
+      // 初回開始
+      state.running = true
+      tick()
       return {
         pause: () => {
           state.stop = true
+          state.running = false
+          cancelScheduled()
         },
         play: () => {
+          if (state.running) return
           state.stop = false
-          anim()
+          state.running = true
+          cancelScheduled()
+          tick()
+        },
+        stop: () => {
+          state.stop = true
+          state.running = false
+          cancelScheduled()
+          Object.assign(el.style, state.before)
+        },
+        destroy: () => {
+          // alias
+          state.stop = true
+          state.running = false
+          cancelScheduled()
+          Object.assign(el.style, state.before)
         },
       }
     },
@@ -144,7 +218,8 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
       target: TargetTypes,
       duration: number,
       easing: 'in' | 'out' | 'inout' | 'bounce' | 'linear',
-      values: ValuesTypes
+      values: ValuesTypes,
+      options?: { signal?: AbortSignal }
     ) => {
       // RSC（サーバ環境）では利用できない
       if (!isBrowser) {
@@ -173,7 +248,23 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
       requestAnimationFrame(async () => {
         Object.assign(el.style, style)
       })
-      await motion.delay(duration)
+      const signal = options?.signal
+      if (signal?.aborted) return
+      if (!signal) {
+        await motion.delay(duration)
+        return
+      }
+      await new Promise<void>((resolve) => {
+        const onAbort = () => {
+          signal.removeEventListener('abort', onAbort)
+          resolve()
+        }
+        signal.addEventListener('abort', onAbort, { once: true })
+        motion.delay(duration).then(() => {
+          signal.removeEventListener('abort', onAbort)
+          resolve()
+        })
+      })
     },
   }
 

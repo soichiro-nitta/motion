@@ -147,10 +147,15 @@ useEffectAsync(async () => {
   - `target` は `HTMLElement` か `createMotion(ID)` 由来のキー列挙（例: `'BOX'`）を受け取ります。
   - `easing`: `in | out | inout | bounce | linear`
   - 変形は個別キーで指定します（例: `translateX`, `rotate`, `scale`）。複合 `transform` は渡さないでください。
+  - 任意: `options?: { signal?: AbortSignal }` を渡すと、`signal.abort()` で `await motion.to(...)` の待機を短絡できます（スタイル適用自体は行われます）。
 
 - `motion.repeat(target, duration, values)`
 
-  - 同一トランジションを繰り返します。`{ pause, play }` を返します。
+  - 同一トランジションを繰り返します。`{ pause, play, stop, destroy }` を返します。
+  - `pause()`: 一時停止（内部のタイマー/RAF をキャンセル）
+  - `play()`: 再開（短い間隔で `pause()/play()` をトグルしても多重ループ化しません）
+  - `stop()/destroy()`: 完全停止＋必要な場合は元の style に復帰（`destroy` は `stop` のエイリアス）
+  - `prefers-reduced-motion` は利用側でガードしてください（例: `if (matchMedia('(prefers-reduced-motion: reduce)').matches) return`）
 
 - `motion.get(target, property)`
 
