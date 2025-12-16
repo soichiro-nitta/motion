@@ -73,6 +73,14 @@ pnpm run prepare
 - npm で 2FA を「発行時必須」にしている場合は Automation Token を使用
 - CI での publish には「Automation」タイプのトークンが必要
 
+### `EOTP`（ワンタイムパスワード要求）
+
+- **症状**: `npm error code EOTP` / `This operation requires a one-time password`
+- **原因**: `NPM_TOKEN` が Automation Token ではない（または npm アカウントの 2FA 設定により OTP が必須）
+- **対策**:
+  - npm で **Automation Token** を作成し、GitHub Secrets の `NPM_TOKEN` を差し替える
+  - その後、**同じタグ（例: `vX.Y.Z`）の workflow を Re-run** すればOK（新しいバージョン/タグは不要）
+
 ### その他
 
 - 失敗する場合は Secrets の `NPM_TOKEN` を再設定
