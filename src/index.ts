@@ -91,7 +91,8 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
         TRANSFORM_PROPERTIES.includes(p)
       )
 
-      const after = (() => {
+      // after（適用するスタイル）を生成
+      const after: CssTypes = (() => {
         const style: CssTypes = {}
         // 非transform系はそのまま入れる（genStyleFromValuesはtransform:''を含み得るため回避）
         Object.keys(values).forEach((k) => {
@@ -112,29 +113,22 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
         })
       })()
 
-      const state: {
-        after: CssTypes
-        before: Partial<Record<keyof CSSStyleDeclaration, string>>
-        stop: boolean
-        running: boolean
-        timeoutId: number | null
-        rafId: number | null
-      } = {
+      const state = {
         after,
-        before: {},
+        before: {} as Partial<Record<keyof CSSStyleDeclaration, string>>,
         stop: false,
         running: false,
-        timeoutId: null,
-        rafId: null,
+        timeoutId: null as number | null,
+        rafId: null as number | null,
       }
 
       // repeatが実際に触るキーだけ保存する（afterのキー + メタプロパティ）
-      Object.keys(state.after).forEach((k) => {
+      Object.keys(after).forEach((k) => {
         const prop = k as keyof CSSStyleDeclaration
         Object.assign(state.before, { [prop]: el.style[prop] })
       })
 
-      const cancelScheduled = () => {
+      const cancel = () => {
         if (state.timeoutId !== null) {
           clearTimeout(state.timeoutId)
           state.timeoutId = null
@@ -150,7 +144,6 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
           state.running = false
           return
         }
-
         Object.assign(el.style, state.before)
         state.rafId = requestAnimationFrame(() => {
           state.rafId = null
@@ -158,7 +151,6 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
             state.running = false
             return
           }
-
           Object.assign(el.style, state.after)
           state.timeoutId = window.setTimeout(() => {
             state.timeoutId = null
@@ -170,35 +162,29 @@ export const createMotion = <T extends string>(source: MotionSource<T>) => {
         })
       }
 
+      const stopImpl = (restore: boolean) => {
+        state.stop = true
+        state.running = false
+        cancel()
+        if (restore) Object.assign(el.style, state.before)
+      }
+
+      const play = () => {
+        if (state.running) return
+        state.stop = false
+        state.running = true
+        cancel()
+        tick()
+      }
+
       // 初回開始
-      state.running = true
-      tick()
+      play()
+
       return {
-        pause: () => {
-          state.stop = true
-          state.running = false
-          cancelScheduled()
-        },
-        play: () => {
-          if (state.running) return
-          state.stop = false
-          state.running = true
-          cancelScheduled()
-          tick()
-        },
-        stop: () => {
-          state.stop = true
-          state.running = false
-          cancelScheduled()
-          Object.assign(el.style, state.before)
-        },
-        destroy: () => {
-          // alias
-          state.stop = true
-          state.running = false
-          cancelScheduled()
-          Object.assign(el.style, state.before)
-        },
+        pause: () => stopImpl(false),
+        play,
+        stop: () => stopImpl(true),
+        destroy: () => stopImpl(true),
       }
     },
     set: (target: TargetTypes, values: ValuesTypes): void => {
