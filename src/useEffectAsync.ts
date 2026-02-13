@@ -1,32 +1,26 @@
 import { DependencyList, useEffect } from 'react'
 
-type AsyncEffect = () => void | (() => void) | Promise<void | (() => void)>
+type Cleanup = () => void
+type AsyncEffect = (onCleanup: (cleanup: Cleanup) => void) => void | Promise<void>
 
 export const useEffectAsync = (effect: AsyncEffect, deps: DependencyList) => {
   useEffect(() => {
-    let cleanup: void | (() => void)
-    let cancelled = false
-    const assignCleanup = (result: void | (() => void) | undefined) => {
-      if (typeof result === 'function') {
-        if (cancelled) {
-          result()
-        } else {
-          cleanup = result
-        }
+    const cleanups: Cleanup[] = []
+    let disposed = false
+
+    const onCleanup = (cleanup: Cleanup) => {
+      if (disposed) {
+        cleanup()
+        return
       }
+      cleanups.push(cleanup)
     }
-    const result = effect()
-    if (result && typeof (result as PromiseLike<unknown>).then === 'function') {
-      void (result as Promise<void | (() => void)>).then((resolved) => {
-        if (!cancelled) assignCleanup(resolved)
-        else if (typeof resolved === 'function') resolved()
-      })
-    } else {
-      assignCleanup(result as void | (() => void))
-    }
+
+    void effect(onCleanup)
+
     return () => {
-      cancelled = true
-      if (typeof cleanup === 'function') cleanup()
+      disposed = true
+      cleanups.splice(0).reverse().forEach((cleanup) => cleanup())
     }
   }, deps)
 }

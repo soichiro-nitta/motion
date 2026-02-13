@@ -62,6 +62,7 @@ export default Page
 ```
 
 - `useEffectAsync` は `async/await` をそのまま書けるようにするラッパーで、内部で `void` を付けたり Promise を捨てたりする必要がありません。
+- cleanup が必要な場合は、`useEffectAsync(async (onCleanup) => { ... })` の `onCleanup(() => ...)` で登録してください。
 - `motion.run` は即時実行のためのヘルパーで、`(async () => { ... })()` の代わりに `motion.run(async () => { ... })` と書けます（返り値はそのまま Promise）。
 - Next.js 16 でのフル実装例（RSC + Client 分離）は検証リポジトリ [motion-rsc-test](https://github.com/soichiro-nitta/motion-rsc-test) を参照してください。
 
@@ -165,7 +166,20 @@ useEffectAsync(async () => {
   - `seconds` 秒待機する `Promise<void>`。
 
 - `useEffectAsync(effect, deps)`
-  - `async/await` をそのまま書ける `useEffect` の薄いラッパー。`effect` が `Promise` を返した場合も自動でハンドリングし、戻り値のクリーンアップがあれば通常の `useEffect` 同様に実行されます。
+  - `async/await` をそのまま書ける `useEffect` の薄いラッパー。
+  - cleanup は `effect` の戻り値ではなく、第一引数 `onCleanup` で登録します。
+  - `onCleanup` は同期的に登録されるため、`await` 中に unmount されても登録済み cleanup は確実に実行されます。
+
+```ts
+useEffectAsync(async (onCleanup) => {
+  const id = window.setInterval(() => {
+    // do something
+  }, 1000)
+  onCleanup(() => window.clearInterval(id))
+
+  await motion.delay(1)
+}, [])
+```
 
 ## 注意（Client-only）
 
