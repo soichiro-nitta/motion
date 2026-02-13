@@ -1,14 +1,14 @@
 import { DependencyList, useEffect } from 'react'
 
 type Cleanup = () => void
-type AsyncEffect = (onCleanup: (cleanup: Cleanup) => void) => void | Promise<void>
+type AsyncEffect = (c: (cleanup: Cleanup) => void) => void | Promise<void>
 
 export const useEffectAsync = (effect: AsyncEffect, deps: DependencyList) => {
   useEffect(() => {
     const cleanups: Cleanup[] = []
     let disposed = false
 
-    const onCleanup = (cleanup: Cleanup) => {
+    const c = (cleanup: Cleanup) => {
       if (disposed) {
         cleanup()
         return
@@ -16,7 +16,7 @@ export const useEffectAsync = (effect: AsyncEffect, deps: DependencyList) => {
       cleanups.push(cleanup)
     }
 
-    void effect(onCleanup)
+    void effect(c)
 
     return () => {
       disposed = true
